@@ -1202,6 +1202,16 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     metrics_json = json.dumps(metrics)
     events_json = json.dumps(recent_events or [])
 
+    usd_val = metrics.get('currency_totals', {}).get('USD', {}).get('billed', 0.0)
+    eur_val = metrics.get('currency_totals', {}).get('EUR', {}).get('billed', 0.0)
+    norm_rows = metrics.get('total_normalized_rows', 0)
+    pruned_rows = metrics.get('pruned_count', 0)
+
+    usd_formatted = f"${usd_val:.6f}"
+    eur_formatted = f"€{eur_val:.6f}"
+    norm_rows_formatted = f"{norm_rows:,}"
+    pruned_rows_formatted = f"{pruned_rows:,}"
+
     html_code = f"""<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -1365,6 +1375,20 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .meta-divider {{
             color: var(--crosshair-color);
             opacity: 0.6;
+        }}
+        .meta-link {{
+            color: var(--accent-steel);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            transition: color 0.15s ease, opacity 0.15s ease;
+        }}
+        .meta-link:hover {{
+            color: var(--accent-steel-hover);
+            text-decoration: underline;
+            opacity: 0.85;
         }}
 
         /* Header Layout */
@@ -2279,9 +2303,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             <span>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM</span>
         </div>
         <div class="meta-group">
-            <span>FOCUS 1.2 SPECIFICATION</span>
-            <span class="meta-divider">//</span>
-            <span>V0.1; SEPT; 2026</span>
+            <a href="https://cloudbotanist.ai" target="_blank" rel="noopener noreferrer" class="meta-link">cloudbotanist.ai</a>
             <span class="crosshair-marker">+</span>
         </div>
     </div>
@@ -2422,7 +2444,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <span class="stat-index">01 // ALLOCATED USD SPEND</span>
                 <span class="stat-tag">USD POOL</span>
             </div>
-            <div class="stat-number usd" id="card-usd-total">$0.000000</div>
+            <div class="stat-number usd" id="card-usd-total">{usd_formatted}</div>
             <div class="stat-subtext" id="card-usd-breakdown">
                 <span class="sub-chip">$0.00 USD</span>
             </div>
@@ -2435,7 +2457,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <span class="stat-index">02 // ALLOCATED EUR SPEND</span>
                 <span class="stat-tag">EUR POOL</span>
             </div>
-            <div class="stat-number eur" id="card-eur-total">€0.000000</div>
+            <div class="stat-number eur" id="card-eur-total">{eur_formatted}</div>
             <div class="stat-subtext" id="card-eur-breakdown">
                 <span class="sub-chip">€0.00 EUR</span>
             </div>
@@ -2446,11 +2468,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             <div class="card-crosshair tr">+</div>
             <div class="stat-top">
                 <span class="stat-index">03 // ACTIVE FOCUS 1.2 RECORDS</span>
-                <span class="stat-tag" id="card-records-chip">0 RECORDS</span>
+                <span class="stat-tag" id="card-records-chip">{norm_rows_formatted} RECORDS</span>
             </div>
-            <div class="stat-number records" id="card-row-count">0</div>
+            <div class="stat-number records" id="card-row-count">{norm_rows_formatted}</div>
             <div class="stat-subtext">
-                <span>Pruned <strong id="card-pruned-count" class="mono-val" style="color: var(--accent-sprout);">0</strong> idle $0.00 micro-metered rows</span>
+                <span>Pruned <strong id="card-pruned-count" class="mono-val" style="color: var(--accent-sprout);">{pruned_rows_formatted}</strong> idle $0.00 micro-metered rows</span>
             </div>
         </div>
 
@@ -2501,9 +2523,18 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 07 // NORMALIZED FOCUS 1.2 TELEMETRY LEDGER
             </span>
             <div class="table-actions">
-                <a href="/unified_focus.parquet" class="btn-action" download>Download Parquet</a>
-                <a href="/unified_focus.duckdb" class="btn-action" download>Export DuckDB</a>
-                <button class="btn-action" id="exportBtn">Export CSV</button>
+                <a href="/unified_focus.parquet" class="btn-action" download title="Download full normalized dataset as Apache Parquet">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download Parquet
+                </a>
+                <a href="/unified_focus.duckdb" class="btn-action" download title="Download standalone DuckDB database file">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                    Export DuckDB
+                </a>
+                <button class="btn-action" id="exportBtn" title="Export filtered rows to CSV">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    Export CSV
+                </button>
             </div>
         </div>
 
@@ -2564,7 +2595,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <!-- Deck Footer -->
     <footer class="deck-footer">
         <div><span class="crosshair-marker">+</span> CLOUD BOTANIST AI // INFRASTRUCTURE-NATIVE PAYMENT PLATFORM FOR CLOUD & COMPUTE SPEND</div>
-        <div>FOCUS 1.2 SPECIFICATION // V0.1; SEPT; 2026 <span class="crosshair-marker">+</span></div>
+        <div><a href="https://cloudbotanist.ai" target="_blank" rel="noopener noreferrer" class="meta-link">cloudbotanist.ai</a> // FOCUS 1.2 ENGINE <span class="crosshair-marker">+</span></div>
     </footer>
 
     <script>

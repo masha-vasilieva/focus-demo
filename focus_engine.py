@@ -32,6 +32,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 import email.parser
 import email.policy
 import urllib.parse
+import base64
 import duckdb
 
 # ----------------------------------------------------------------------
@@ -41,6 +42,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PORT = 8000
 OUTPUT_PARQUET = os.path.join(SCRIPT_DIR, "unified_focus.parquet")
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, "report.html")
+LOGO_FILE = os.path.join(SCRIPT_DIR, "logo.png")
 
 # ----------------------------------------------------------------------
 # Discipline 2 & 3: Schema Sniffing & Dynamic Normalizer
@@ -1056,6 +1058,17 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404, "unified_focus.parquet not found")
         elif parsed.path == "/unified_focus.duckdb":
             self.handle_export_duckdb()
+        elif parsed.path == "/logo.png":
+            target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else "/app/downloads/logo.png"
+            if os.path.exists(target_logo):
+                self.send_response(200)
+                self.send_header("Content-Type", "image/png")
+                self.send_header("Content-Length", str(os.path.getsize(target_logo)))
+                self.end_headers()
+                with open(target_logo, "rb") as f:
+                    shutil.copyfileobj(f, self.wfile)
+            else:
+                self.send_error(404, "logo.png not found")
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -1211,6 +1224,16 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     eur_formatted = f"€{eur_val:.6f}"
     norm_rows_formatted = f"{norm_rows:,}"
     pruned_rows_formatted = f"{pruned_rows:,}"
+
+    logo_base64 = ""
+    target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else "/app/downloads/logo.png"
+    if os.path.exists(target_logo):
+        try:
+            with open(target_logo, "rb") as lf:
+                logo_base64 = base64.b64encode(lf.read()).decode("utf-8")
+        except Exception:
+            pass
+    logo_src = f"data:image/png;base64,{logo_base64}" if logo_base64 else "/logo.png"
 
     html_code = f"""<!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -1410,22 +1433,29 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .logo-box {{
-            width: 46px;
-            height: 46px;
+            width: 48px;
+            height: 48px;
             border: 1px solid var(--border-color);
             background: var(--bg-surface);
             border-radius: var(--radius-card);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--accent-steel);
             flex-shrink: 0;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            padding: 5px;
+            overflow: hidden;
         }}
 
-        .pitchdeck-tree {{
-            width: 30px;
-            height: 30px;
+        .brand-logo-img {{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }}
+
+        [data-theme="dark"] .brand-logo-img {{
+            filter: invert(1);
         }}
 
         .header-title h1 {{
@@ -2312,15 +2342,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <header class="header">
         <div class="header-brand">
             <div class="logo-box">
-                <!-- Geometric Botanical Tree Logo from PITCHDECK.pdf Slide 1 & 9 -->
-                <svg class="pitchdeck-tree" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter">
-                    <line x1="50" y1="8" x2="50" y2="92" />
-                    <line x1="50" y1="30" x2="26" y2="8" />
-                    <line x1="50" y1="30" x2="74" y2="8" />
-                    <polyline points="26,28 26,48 50,48 74,48 74,28" />
-                    <line x1="50" y1="68" x2="12" y2="30" />
-                    <line x1="50" y1="68" x2="88" y2="30" />
-                </svg>
+                <img src="{logo_src}" alt="Cloud Botanist AI" class="brand-logo-img">
             </div>
             <div class="header-title">
                 <h1>CLOUD BOTANIST AI <span class="brand-sub">FOCUS 1.2</span></h1>

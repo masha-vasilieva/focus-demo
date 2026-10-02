@@ -33,9 +33,11 @@ A zero-framework, standalone FinOps normalization engine built with **DuckDB** a
 
 ## Quickstart
 
+> For complete step-by-step installation instructions for any new environment (macOS, Linux, Windows, or Docker), see **[SETUP.md](SETUP.md)**.
+
 ### Prerequisites
 - Python 3.9+
-- DuckDB (`pip install duckdb`)
+- Install dependencies: `pip install -r requirements.txt` (DuckDB)
 
 ### Run the Engine & Dashboard
 
@@ -60,8 +62,11 @@ Once started, open `http://localhost:8000` in your browser. Drag and drop any ra
 focus-demo/
 ├── focus_engine.py                  # Standalone zero-framework engine & HTTP server
 ├── report.html                      # Interactive self-contained HTML dashboard
+├── SETUP.md                         # Clean environment installation & run guide
+├── requirements.txt                 # Dependencies (DuckDB)
 ├── DESIGN.md                        # Visual design system specifications
 ├── PITCHDECK.pdf                    # Pitch deck reference
+├── logo.png                         # Cloud Botanist AI branding asset
 ├── unified_focus.parquet            # Exported normalized FOCUS 1.2 dataset (Parquet)
 ├── unified_focus.duckdb             # Exported normalized FOCUS 1.2 database (DuckDB)
 ├── AWSDemoReport-00001.snappy.parquet # Sample AWS billing partition

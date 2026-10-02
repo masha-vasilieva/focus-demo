@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Botanist AI • FOCUS 1.2 Telemetry & Spend Governance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Blueprint Light Theme (Slides 1, 2, 3, 5, 6, 7) */
+            --bg-ground: #f3f4f2;
+            --bg-surface: #ffffff;
+            --bg-surface-elevated: #f8f9fa;
+            --bg-surface-muted: #edf1f5;
+            --grid-line: rgba(77, 116, 154, 0.09);
+            --crosshair-color: #8fa0b0;
+
+            --border-color: #d8dde3;
+            --border-subtle: #e5eaef;
+            --border-accent: rgba(77, 116, 154, 0.35);
+
+            /* Pitchdeck Signature Denim Steel Blue */
+            --accent-steel: #4d749a;
+            --accent-steel-hover: #3d5f80;
+            --accent-steel-subtle: rgba(77, 116, 154, 0.1);
+            --accent-steel-border: rgba(77, 116, 154, 0.28);
+
+            /* Secondary Accents */
+            --accent-sprout: #10b981;
+            --accent-sprout-subtle: rgba(16, 185, 129, 0.1);
+            --accent-sprout-border: rgba(16, 185, 129, 0.3);
+
+            --accent-phosphor: #0284c7;
+            --accent-phosphor-subtle: rgba(2, 132, 199, 0.1);
+            --accent-phosphor-border: rgba(2, 132, 199, 0.3);
+
+            /* Signals */
+            --signal-amber: #d97706;
+            --signal-ember: #e11d48;
+
+            /* Typography */
+            --text-primary: #12161c;
+            --text-secondary: #526071;
+            --text-muted: #8292a2;
+
+            --font-display: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            /* Hard Layout Constraints */
+            --radius-card: 6px;
+            --radius-control: 4px;
+            --radius-sm: 3px;
+            --radius-pill: 9999px;
+        }
+
+        [data-theme="dark"] {
+            /* Blueprint Dark Theme (Slides 4, 8, 9) */
+            --bg-ground: #182432;
+            --bg-surface: #1c2a38;
+            --bg-surface-elevated: #141e2a;
+            --bg-surface-muted: #223344;
+            --grid-line: rgba(125, 167, 203, 0.08);
+            --crosshair-color: #4d6780;
+
+            --border-color: #2a3c50;
+            --border-subtle: #202f40;
+            --border-accent: rgba(125, 167, 203, 0.35);
+
+            /* Ice Blue Accent */
+            --accent-steel: #7da7cb;
+            --accent-steel-hover: #98bfdf;
+            --accent-steel-subtle: rgba(125, 167, 203, 0.12);
+            --accent-steel-border: rgba(125, 167, 203, 0.3);
+
+            --accent-sprout: #34d399;
+            --accent-sprout-subtle: rgba(52, 211, 153, 0.12);
+            --accent-sprout-border: rgba(52, 211, 153, 0.3);
+
+            --accent-phosphor: #38bdf8;
+            --accent-phosphor-subtle: rgba(56, 189, 248, 0.12);
+            --accent-phosphor-border: rgba(56, 189, 248, 0.3);
+
+            --signal-amber: #f59e0b;
+            --signal-ember: #f43f5e;
+
+            --text-primary: #f4f7fa;
+            --text-secondary: #9cb1c4;
+            --text-muted: #677d94;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-ground);
+            background-image: 
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 80px 80px;
+            color: var(--text-primary);
+            padding: 24px 32px 48px;
+            min-height: 100vh;
+            line-height: 1.5;
+            text-align: left;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Blueprint Architectural Typography */
+        h1, h2, h3, h4, th, .display-font, .stat-number, .stat-index, .spend-card-label {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+        }
+
+        .telemetry-num,
+        .cost-col,
+        .mono-val,
+        .card-digits,
+        .format-pill,
+        code,
+        pre {
+            font-family: var(--font-mono) !important;
+            font-feature-settings: 'tnum' 1, 'zero' 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Crosshairs */
+        .crosshair-marker {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--crosshair-color);
+            user-select: none;
+        }
+
+        /* Top Slide Meta Bar */
+        .deck-top-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .meta-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-divider {
+            color: var(--crosshair-color);
+            opacity: 0.6;
+        }
+
+        /* Header Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-box {
+            width: 46px;
+            height: 46px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            border-radius: var(--radius-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-steel);
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .pitchdeck-tree {
+            width: 30px;
+            height: 30px;
+        }
+
+        .header-title h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.01em;
+            line-height: 1.1;
+        }
+
+        .header-title h1 .brand-sub {
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--accent-steel);
+            background: var(--accent-steel-subtle);
+            border: 1px solid var(--accent-steel-border);
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            letter-spacing: 0.08em;
+            vertical-align: middle;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badges {
+            display: flex;
+            gap: 6px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font-mono);
+        }
+
+        .badge-focus {
+            background: var(--accent-steel-subtle);
+            color: var(--accent-steel);
+            border: 1px solid var(--accent-steel-border);
+        }
+        .badge-duckdb {
+            background: var(--accent-sprout-subtle);
+            color: var(--accent-sprout);
+            border: 1px solid var(--accent-sprout-border);
+        }
+        .badge-status {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-sprout);
+        }
+
+        /* Blueprint Pill Control Groups */
+        .toggle-pill {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-control);
+            padding: 2px 3px;
+            gap: 2px;
+        }
+
+        .pill-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 0 4px 0 6px;
+            font-family: var(--font-mono);
+        }
+
+        .pill-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            padding: 4px 9px;
+            border-radius: var(--radius-sm);
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .pill-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-elevated);
+        }
+
+        .pill-btn.active {
+            background: var(--accent-steel);
+            border-color: var(--accent-steel);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-reset {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--signal-ember);
+            padding: 6px 12px;
+            border-radius: var(--radius-control);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .btn-reset:hover {
+            background: rgba(225, 29, 72, 0.08);
+            border-color: var(--signal-ember);
+            color: var(--signal-ember);
+        }
+
+        /* Blueprint Card Foundation */
+        .blueprint-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-card);
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: border-color 0.15s ease;
+        }
+
+        .blueprint-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-card);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Corner Alignment Crosshairs */
+        .card-crosshair {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--crosshair-color);
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+        .card-crosshair.tl { top: 6px; left: 8px; }
+        .card-crosshair.tr { top: 6px; right: 8px; }
+        .card-crosshair.bl { bottom: 6px; left: 8px; }
+        .card-crosshair.br { bottom: 6px; right: 8px; }
+
+        /* Slide 7: Programmable Spend Card / Drag & Drop Intake */
+        .dropzone-section {
+            margin-bottom: 24px;
+        }
+
+        .dropzone-card {
+            padding: 20px 24px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            border-style: solid;
+        }
+
+        .dropzone-card * {
+            pointer-events: none;
+        }
+
+        .dropzone-card:hover {
+            border-color: var(--accent-steel);
+        }
+
+        .dropzone-card.dragover {
+            border-color: var(--accent-steel) !important;
+            background: var(--accent-steel-subtle) !important;
+            border-style: solid !important;
+        }
+
+        .dropzone-card.processing {
+            border-color: var(--accent-phosphor);
+            background: var(--accent-phosphor-subtle);
+            cursor: wait;
+        }
+
+        .dropzone-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-surface);
+            opacity: 0.96;
+            backdrop-filter: blur(2px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .dropzone-card.processing .dropzone-overlay {
+            display: flex;
+        }
+
+        .blueprint-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-steel);
+            border-radius: 50%;
+            animation: bp-spin 0.75s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes bp-spin { to { transform: rotate(360deg); } }
+
+        .dropzone-overlay-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            letter-spacing: 0.04em;
+            color: var(--text-primary);
+        }
+        .dropzone-overlay-subtext {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: var(--font-mono);
+        }
+
+        .spend-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .spend-card-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chip-graphic {
+            width: 36px;
+            height: 28px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface-elevated);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-steel);
+        }
+
+        .spend-card-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.04em;
+        }
+
+        .card-digits {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            margin-top: 2px;
+        }
+
+        .card-rule-tag {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 1px 6px;
+            background: var(--accent-steel-subtle);
+            border: 1px solid var(--accent-steel-border);
+            border-radius: var(--radius-sm);
+            color: var(--accent-steel);
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: normal;
+        }
+
+        .format-tags {
+            display: flex;
+            gap: 6px;
+        }
+
+        .format-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--accent-steel);
+        }
+
+        .dropzone-inner-prompt {
+            padding: 12px 0 4px;
+        }
+
+        .dropzone-callout {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dropzone-callout svg {
+            stroke: var(--accent-steel);
+            flex-shrink: 0;
+        }
+
+        .prompt-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .prompt-headline {
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
+        }
+
+        .prompt-sub {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .mode-status-text {
+            color: var(--accent-steel);
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Toast Alert */
+        .alert-toast {
+            display: none;
+            padding: 10px 16px;
+            border-radius: var(--radius-control);
+            margin-top: 12px;
+            font-size: 0.82rem;
+            animation: bpFadeIn 0.2s ease;
+        }
+
+        .alert-success {
+            background: var(--accent-sprout-subtle);
+            border: 1px solid var(--accent-sprout-border);
+            color: var(--accent-sprout);
+        }
+
+        .alert-error {
+            background: rgba(225, 29, 72, 0.1);
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            color: var(--signal-ember);
+        }
+
+        .alert-info {
+            background: var(--accent-steel-subtle);
+            border: 1px solid var(--accent-steel-border);
+            color: var(--accent-steel);
+        }
+
+        @keyframes bpFadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Activity / Audit Feed Panel */
+        .activity-panel {
+            margin-top: 12px;
+            padding: 12px 18px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .panel-title {
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+        }
+
+        .btn-subtle {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            cursor: pointer;
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            transition: all 0.15s ease;
+        }
+        .btn-subtle:hover {
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .activity-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.65rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-family: var(--font-mono);
+        }
+
+        .badge-act-success { background: var(--accent-sprout-subtle); color: var(--accent-sprout); border: 1px solid var(--accent-sprout-border); }
+        .badge-act-info { background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }
+        .badge-act-warning { background: rgba(217, 119, 6, 0.1); color: var(--signal-amber); border: 1px solid rgba(217, 119, 6, 0.3); }
+        .badge-act-reset { background: rgba(225, 29, 72, 0.1); color: var(--signal-ember); border: 1px solid rgba(225, 29, 72, 0.3); }
+
+        .activity-text {
+            color: var(--text-primary);
+        }
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            margin-left: 10px;
+        }
+
+        /* Numbered Spend Compartments (Slides 3, 4, 6) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            padding: 18px 20px;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .stat-index {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+        }
+
+        .stat-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            padding: 1px 6px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+        }
+        .stat-tag.invariant {
+            color: var(--accent-sprout);
+            background: var(--accent-sprout-subtle);
+            border-color: var(--accent-sprout-border);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            font-family: var(--font-display);
+        }
+
+        .stat-number.usd { color: var(--accent-steel); }
+        .stat-number.eur { color: var(--accent-phosphor); }
+        .stat-number.records { color: var(--text-primary); }
+        .stat-number.invariant { color: var(--accent-sprout); }
+
+        .stat-subtext {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .sub-chip {
+            display: inline-block;
+            padding: 1px 6px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+
+        /* Infrastructure Spend Yield (Charts) */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 900px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-panel {
+            padding: 18px 20px;
+        }
+
+        .curr-pill {
+            font-size: 0.65rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+        }
+        .curr-pill.curr-usd { background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }
+        .curr-pill.curr-eur { background: var(--accent-phosphor-subtle); color: var(--accent-phosphor); border: 1px solid var(--accent-phosphor-border); }
+
+        .chart-container {
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            padding-top: 8px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .bar-track {
+            height: 10px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: var(--radius-sm);
+            transition: width 0.5s ease;
+        }
+
+        .bar-fill-usd { background: var(--accent-steel); }
+        .bar-fill-eur { background: var(--accent-phosphor); }
+
+        /* Normalized Telemetry Table */
+        .table-panel {
+            padding: 18px 20px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 5px 12px;
+            border-radius: var(--radius-control);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .btn-action:hover {
+            border-color: var(--accent-steel);
+            color: var(--accent-steel);
+        }
+
+        .table-filters-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 14px 0 16px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 260px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            stroke: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-control);
+            padding: 8px 12px 8px 34px;
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+        .search-input:focus {
+            border-color: var(--accent-steel);
+        }
+
+        .select-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-control);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius-control);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary);
+            font-family: var(--font-display);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+            font-size: 0.74rem;
+            letter-spacing: 0.04em;
+        }
+        th:hover {
+            color: var(--accent-steel);
+        }
+
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        tr:hover td {
+            background: var(--bg-surface-elevated);
+        }
+
+        /* Blueprint Badges */
+        .prov-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .prov-aws { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.28); }
+        .prov-azure { background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }
+        .prov-gcp { background: var(--accent-sprout-subtle); color: var(--accent-sprout); border: 1px solid var(--accent-sprout-border); }
+        .prov-cloudflare { background: rgba(234, 88, 12, 0.1); color: #ea580c; border: 1px solid rgba(234, 88, 12, 0.28); }
+        .prov-nebius { background: rgba(147, 51, 234, 0.1); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.28); }
+
+        .curr-badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: var(--radius-sm);
+            font-size: 0.68rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+        .curr-usd { background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }
+        .curr-eur { background: var(--accent-phosphor-subtle); color: var(--accent-phosphor); border: 1px solid var(--accent-phosphor-border); }
+
+        .cat-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+        .cat-usage { background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }
+        .cat-credit { background: var(--accent-sprout-subtle); color: var(--accent-sprout); border: 1px solid var(--accent-sprout-border); }
+        .cat-tax { background: rgba(217, 119, 6, 0.1); color: var(--signal-amber); border: 1px solid rgba(217, 119, 6, 0.25); }
+
+        .cost-col {
+            font-weight: 600;
+        }
+        .cost-col.pos { color: var(--text-primary); }
+        .cost-col.credit { color: var(--accent-sprout); }
+        .cost-col.zero { color: var(--text-muted); }
+
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .page-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .page-btn {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.76rem;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .page-btn.active {
+            background: var(--accent-steel);
+            border-color: var(--accent-steel);
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .page-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* Deck Footer */
+        .deck-footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            letter-spacing: 0.06em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide Meta Bar -->
+    <div class="deck-top-meta">
+        <div class="meta-group">
+            <span class="crosshair-marker">+</span>
+            <span>TELEMETRY ARCHITECTURE</span>
+            <span class="meta-divider">//</span>
+            <span>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM</span>
+        </div>
+        <div class="meta-group">
+            <span>FOCUS 1.2 SPECIFICATION</span>
+            <span class="meta-divider">//</span>
+            <span>V0.1; SEPT; 2026</span>
+            <span class="crosshair-marker">+</span>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="header">
+        <div class="header-brand">
+            <div class="logo-box">
+                <!-- Geometric Botanical Tree Logo from PITCHDECK.pdf Slide 1 & 9 -->
+                <svg class="pitchdeck-tree" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter">
+                    <line x1="50" y1="8" x2="50" y2="92" />
+                    <line x1="50" y1="30" x2="26" y2="8" />
+                    <line x1="50" y1="30" x2="74" y2="8" />
+                    <polyline points="26,28 26,48 50,48 74,48 74,28" />
+                    <line x1="50" y1="68" x2="12" y2="30" />
+                    <line x1="50" y1="68" x2="88" y2="30" />
+                </svg>
+            </div>
+            <div class="header-title">
+                <h1>CLOUD BOTANIST AI <span class="brand-sub">FOCUS 1.2</span></h1>
+                <p>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM FOR CLOUD & COMPUTE SPEND.</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="badges">
+                <span class="badge badge-focus"><span class="badge-dot"></span>FOCUS v1.2</span>
+                <span class="badge badge-duckdb">DUCKDB</span>
+                <span class="badge badge-status">LIVE TELEMETRY</span>
+            </div>
+            <div class="toggle-pill" role="group" aria-label="Ingestion Mode">
+                <span class="pill-title">MODE:</span>
+                <button type="button" id="btnModeReplace" class="pill-btn active" onclick="setMode('replace')" title="Replace active data with dropped file(s)">
+                    Replace on Drop
+                </button>
+                <button type="button" id="btnModeAppend" class="pill-btn" onclick="setMode('append')" title="Accumulate dropped file(s) into active ledger">
+                    Append
+                </button>
+            </div>
+            <div class="toggle-pill" role="group" aria-label="Theme Mode">
+                <span class="pill-title">THEME:</span>
+                <button type="button" id="btnThemeLight" class="pill-btn active" onclick="setTheme('light')" title="Light Blueprint (Slides 1-3, 5-7)">
+                    Light
+                </button>
+                <button type="button" id="btnThemeDark" class="pill-btn" onclick="setTheme('dark')" title="Dark Blueprint (Slides 4, 8-9)">
+                    Dark
+                </button>
+            </div>
+            <button class="btn-reset" id="resetBtn" onclick="handleReset()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                Reset / Clear Data
+            </button>
+        </div>
+    </header>
+
+    <!-- Slide 7: Programmable Spend Card / Intake Zone -->
+    <div class="dropzone-section">
+        <div class="blueprint-card dropzone-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="card-crosshair tl">+</div>
+            <div class="card-crosshair tr">+</div>
+            <div class="card-crosshair bl">+</div>
+            <div class="card-crosshair br">+</div>
+
+            <div class="dropzone-overlay" id="dropzoneOverlay">
+                <div class="blueprint-spinner"></div>
+                <div class="dropzone-overlay-text">EXECUTING DUCKDB NORMALIZATION KERNEL...</div>
+                <div class="dropzone-overlay-subtext">Content-sniffing schema and converting partitions to FOCUS 1.2 standard</div>
+            </div>
+
+            <div class="spend-card-header">
+                <div class="spend-card-title-wrap">
+                    <div class="chip-graphic">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                            <rect x="5" y="4" width="14" height="16" rx="2" />
+                            <line x1="9" y1="9" x2="9" y2="15" />
+                            <line x1="15" y1="9" x2="15" y2="15" />
+                            <line x1="1" y1="8" x2="5" y2="8" />
+                            <line x1="1" y1="12" x2="5" y2="12" />
+                            <line x1="1" y1="16" x2="5" y2="16" />
+                            <line x1="19" y1="8" x2="23" y2="8" />
+                            <line x1="19" y1="12" x2="23" y2="12" />
+                            <line x1="19" y1="16" x2="23" y2="16" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="spend-card-label">CLOUD BILLING // TELEMETRY INTAKE</div>
+                        <div class="card-digits">•••• •••• •••• 2026 <span class="card-rule-tag">rule: GPU burn &lt;= budget</span></div>
+                    </div>
+                </div>
+                <div class="format-tags">
+                    <span class="format-pill">.PARQUET</span>
+                    <span class="format-pill">.CSV</span>
+                    <span class="format-pill">.JSON</span>
+                    <span class="format-pill">.TAR.GZ</span>
+                    <span class="format-pill">.ZIP</span>
+                </div>
+            </div>
+
+            <div class="dropzone-inner-prompt">
+                <div class="dropzone-callout">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <div class="prompt-text">
+                        <strong class="prompt-headline">DRAG & DROP BILLING TELEMETRY FILES HERE OR CLICK TO BROWSE</strong>
+                        <span class="prompt-sub"><span id="modeStatusText" class="mode-status-text">[REPLACE ON DROP]</span> Content sniffs AWS, Azure, GCP, Cloudflare, Nebius partitions dynamically</span>
+                    </div>
+                </div>
+            </div>
+
+            <input type="file" id="fileInput" multiple>
+        </div>
+        <div id="alertToast" class="alert-toast"></div>
+
+        <!-- Hardware Telemetry & Audit Stream -->
+        <div class="blueprint-panel activity-panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <span class="crosshair-marker">+</span>
+                    AUDIT FEED // HARDWARE TELEMETRY & INGESTION STREAM
+                </span>
+                <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
+            </div>
+            <div class="activity-list" id="activityLogList"></div>
+        </div>
+    </div>
+
+    <!-- Numbered Spend Metric Compartments (Slides 3, 4, 6) -->
+    <div class="cards-grid">
+        <div class="blueprint-card stat-card">
+            <div class="card-crosshair tl">+</div>
+            <div class="card-crosshair tr">+</div>
+            <div class="stat-top">
+                <span class="stat-index">01 // ALLOCATED USD SPEND</span>
+                <span class="stat-tag">USD POOL</span>
+            </div>
+            <div class="stat-number usd" id="card-usd-total">$0.000000</div>
+            <div class="stat-subtext" id="card-usd-breakdown">
+                <span class="sub-chip">$0.00 USD</span>
+            </div>
+        </div>
+
+        <div class="blueprint-card stat-card">
+            <div class="card-crosshair tl">+</div>
+            <div class="card-crosshair tr">+</div>
+            <div class="stat-top">
+                <span class="stat-index">02 // ALLOCATED EUR SPEND</span>
+                <span class="stat-tag">EUR POOL</span>
+            </div>
+            <div class="stat-number eur" id="card-eur-total">€0.000000</div>
+            <div class="stat-subtext" id="card-eur-breakdown">
+                <span class="sub-chip">€0.00 EUR</span>
+            </div>
+        </div>
+
+        <div class="blueprint-card stat-card">
+            <div class="card-crosshair tl">+</div>
+            <div class="card-crosshair tr">+</div>
+            <div class="stat-top">
+                <span class="stat-index">03 // ACTIVE FOCUS 1.2 RECORDS</span>
+                <span class="stat-tag" id="card-records-chip">0 RECORDS</span>
+            </div>
+            <div class="stat-number records" id="card-row-count">0</div>
+            <div class="stat-subtext">
+                <span>Pruned <strong id="card-pruned-count" class="mono-val" style="color: var(--accent-sprout);">0</strong> idle $0.00 micro-metered rows</span>
+            </div>
+        </div>
+
+        <div class="blueprint-card stat-card">
+            <div class="card-crosshair tl">+</div>
+            <div class="card-crosshair tr">+</div>
+            <div class="stat-top">
+                <span class="stat-index">04 // DUAL-CURRENCY INVARIANCE</span>
+                <span class="stat-tag invariant">ENFORCED</span>
+            </div>
+            <div class="stat-number invariant">0.000000% Δ</div>
+            <div class="stat-subtext">
+                <span>Zero arithmetic drift across currency boundaries</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Infrastructure Spend Yield (Charts) -->
+    <div class="charts-grid">
+        <div class="blueprint-panel chart-panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <span class="crosshair-marker">+</span>
+                    05 // USD INFRASTRUCTURE SPEND YIELD
+                </span>
+                <span class="curr-pill curr-usd">USD</span>
+            </div>
+            <div class="chart-container" id="usd-bars"></div>
+        </div>
+
+        <div class="blueprint-panel chart-panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <span class="crosshair-marker">+</span>
+                    06 // EUR INFRASTRUCTURE SPEND YIELD
+                </span>
+                <span class="curr-pill curr-eur">EUR</span>
+            </div>
+            <div class="chart-container" id="eur-bars"></div>
+        </div>
+    </div>
+
+    <!-- Normalized Telemetry Ledger Table -->
+    <div class="blueprint-panel table-panel">
+        <div class="panel-header">
+            <span class="panel-title">
+                <span class="crosshair-marker">+</span>
+                07 // NORMALIZED FOCUS 1.2 TELEMETRY LEDGER
+            </span>
+            <div class="table-actions">
+                <a href="/unified_focus.parquet" class="btn-action" download>Download Parquet</a>
+                <a href="/unified_focus.duckdb" class="btn-action" download>Export DuckDB</a>
+                <button class="btn-action" id="exportBtn">Export CSV</button>
+            </div>
+        </div>
+
+        <div class="table-filters-row">
+            <div class="search-box">
+                <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search provider, service, SKU, description...">
+            </div>
+            <div class="select-group">
+                <select id="provFilter" class="filter-select">
+                    <option value="">All Providers</option>
+                </select>
+                <select id="currFilter" class="filter-select">
+                    <option value="">All Currencies</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                </select>
+                <select id="catFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Usage">Usage</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Tax">Tax</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortTable('ProviderName')">PROVIDER ↕</th>
+                        <th onclick="sortTable('ServiceName')">SERVICE NAME ↕</th>
+                        <th onclick="sortTable('ChargeCategory')">CATEGORY ↕</th>
+                        <th onclick="sortTable('ChargeDescription')">CHARGE DESCRIPTION ↕</th>
+                        <th onclick="sortTable('ConsumedQuantity')">QTY ↕</th>
+                        <th onclick="sortTable('ConsumedUnit')">UNIT ↕</th>
+                        <th onclick="sortTable('BilledCost')">BILLED COST ↕</th>
+                        <th onclick="sortTable('EffectiveCost')">EFFECTIVE COST ↕</th>
+                        <th onclick="sortTable('BillingCurrency')">CURRENCY ↕</th>
+                        <th onclick="sortTable('PeriodStart')">PERIOD START ↕</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination-bar">
+            <div>
+                Showing <span id="startIdx">0</span> to <span id="endIdx">0</span> of <span id="totalFilterCount">0</span> records
+            </div>
+            <div class="page-buttons" id="paginationControls"></div>
+        </div>
+    </div>
+
+    <!-- Deck Footer -->
+    <footer class="deck-footer">
+        <div><span class="crosshair-marker">+</span> CLOUD BOTANIST AI // INFRASTRUCTURE-NATIVE PAYMENT PLATFORM FOR CLOUD & COMPUTE SPEND</div>
+        <div>FOCUS 1.2 SPECIFICATION // V0.1; SEPT; 2026 <span class="crosshair-marker">+</span></div>
+    </footer>
+
+    <script>
+        let rawData = {"providers": [{"provider": "Google Cloud", "currency": "EUR", "raw_rows": 22, "normalized_rows": 18, "pruned_rows": 4, "billed_cost": 0.0, "effective_cost": 8.673617379884035e-19}, {"provider": "Microsoft Azure", "currency": "EUR", "raw_rows": 19, "normalized_rows": 9, "pruned_rows": 10, "billed_cost": 0.043892489659828594, "effective_cost": 0.043892489659828594}, {"provider": "AWS", "currency": "USD", "raw_rows": 181, "normalized_rows": 105, "pruned_rows": 76, "billed_cost": 3.9999999753431714e-10, "effective_cost": 3.9999999753431714e-10}, {"provider": "Cloudflare", "currency": "USD", "raw_rows": 3, "normalized_rows": 3, "pruned_rows": 0, "billed_cost": 0.0, "effective_cost": 0.0}, {"provider": "Nebius B.V.", "currency": "USD", "raw_rows": 4, "normalized_rows": 3, "pruned_rows": 1, "billed_cost": 0.013233756, "effective_cost": 0.013233756}], "currency_totals": {"USD": {"billed": 0.013233756399999998, "effective": 0.013233756399999998, "normalized_rows": 111, "raw_rows": 188}, "EUR": {"billed": 0.043892489659828594, "effective": 0.043892489659828594, "normalized_rows": 27, "raw_rows": 41}}, "top_services": [{"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Machines", "BillingCurrency": "EUR", "total_billed": 0.02835909335780788, "line_items": 4}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Network", "BillingCurrency": "EUR", "total_billed": 0.015516772568550002, "line_items": 1}, {"ProviderName": "Nebius B.V.", "ServiceName": "Compute", "BillingCurrency": "USD", "total_billed": 0.013233756, "line_items": 3}, {"ProviderName": "Microsoft Azure", "ServiceName": "Storage Accounts", "BillingCurrency": "EUR", "total_billed": 1.6623733470717e-05, "line_items": 4}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "BillingCurrency": "USD", "total_billed": 1.830000000039794e-08, "line_items": 83}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "BillingCurrency": "USD", "total_billed": 4.999999988694603e-10, "line_items": 8}, {"ProviderName": "Google Cloud", "ServiceName": "VM Manager", "BillingCurrency": "EUR", "total_billed": 0.0, "line_items": 2}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Data Storage (First 10GB-Month included)", "BillingCurrency": "USD", "total_billed": 0.0, "line_items": 1}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "BillingCurrency": "EUR", "total_billed": 0.0, "line_items": 10}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Storage Class B Operations (First 10M included)", "BillingCurrency": "USD", "total_billed": 0.0, "line_items": 1}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "BillingCurrency": "EUR", "total_billed": 0.0, "line_items": 6}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Storage Class A Operations (First 1M included)", "BillingCurrency": "USD", "total_billed": 0.0, "line_items": 1}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "BillingCurrency": "USD", "total_billed": -1.6940658945086007e-21, "line_items": 6}, {"ProviderName": "AWS", "ServiceName": "Amazon Virtual Private Cloud", "BillingCurrency": "USD", "total_billed": -4.336808689942018e-19, "line_items": 4}, {"ProviderName": "AWS", "ServiceName": "AWS Data Transfer", "BillingCurrency": "USD", "total_billed": -1.84e-08, "line_items": 4}], "table_rows": [{"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Usage", "ChargeDescription": "Nvidia Tesla T4 GPU attached to Spot Preemptible VMs running in Americas", "ConsumedQuantity": 0.034, "ConsumedUnit": "hour", "BilledCost": 0.01, "EffectiveCost": 0.005787, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Usage", "ChargeDescription": "Balanced PD Capacity", "ConsumedQuantity": 0.0, "ConsumedUnit": "gibibyte month", "BilledCost": 0.0, "EffectiveCost": 4.1e-05, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Credit", "ChargeDescription": "Spot Preemptible N1 Predefined Instance Core running in Americas", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.002214, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Credit", "ChargeDescription": "Spot Preemptible N1 Predefined Instance Ram running in Americas", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.001113, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Credit", "ChargeDescription": "External IP Charge on a Spot Preemptible VM", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -7.2e-05, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Credit", "ChargeDescription": "Balanced PD Capacity", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -4.1e-05, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Usage", "ChargeDescription": "Spot Preemptible N1 Predefined Instance Core running in Americas", "ConsumedQuantity": 0.136, "ConsumedUnit": "hour", "BilledCost": 0.0, "EffectiveCost": 0.002214, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Usage", "ChargeDescription": "Spot Preemptible N1 Predefined Instance Ram running in Americas", "ConsumedQuantity": 0.511, "ConsumedUnit": "gibibyte hour", "BilledCost": 0.0, "EffectiveCost": 0.001113, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Usage", "ChargeDescription": "External IP Charge on a Spot Preemptible VM", "ConsumedQuantity": 0.034, "ConsumedUnit": "hour", "BilledCost": 0.0, "EffectiveCost": 7.2e-05, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Credit", "ChargeDescription": "Network Intelligence Center Topology and Google Cloud Performance Resource Hours", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.000944, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Credit", "ChargeDescription": "Network Intelligence Center Network Analyzer Resource Hours", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.000944, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Credit", "ChargeDescription": "Network Intelligence Center Internet to Google Cloud Performance Resource Hours", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.000686, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Usage", "ChargeDescription": "Network Intelligence Center Network Analyzer Resource Hours", "ConsumedQuantity": 1.0, "ConsumedUnit": "count", "BilledCost": 0.0, "EffectiveCost": 0.000944, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Usage", "ChargeDescription": "Network Intelligence Center Topology and Google Cloud Performance Resource Hours", "ConsumedQuantity": 1.0, "ConsumedUnit": "count", "BilledCost": 0.0, "EffectiveCost": 0.000944, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Networking", "ChargeCategory": "Usage", "ChargeDescription": "Network Intelligence Center Internet to Google Cloud Performance Resource Hours", "ConsumedQuantity": 1.0, "ConsumedUnit": "count", "BilledCost": 0.0, "EffectiveCost": 0.000686, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "VM Manager", "ChargeCategory": "Credit", "ChargeDescription": "VM Manager Usage (Cloud Ops)", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": 0.0, "EffectiveCost": -0.002574, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "VM Manager", "ChargeCategory": "Usage", "ChargeDescription": "VM Manager Usage (Cloud Ops)", "ConsumedQuantity": 1.0, "ConsumedUnit": "count", "BilledCost": 0.0, "EffectiveCost": 0.002574, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Google Cloud", "ServiceName": "Compute Engine", "ChargeCategory": "Credit", "ChargeDescription": "Nvidia Tesla T4 GPU attached to Spot Preemptible VMs running in Americas", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -0.01, "EffectiveCost": -0.005787, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "My First Project"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Machines", "ChargeCategory": "Usage", "ChargeDescription": "Bsv2 Series VM", "ConsumedQuantity": 1.950017, "ConsumedUnit": "Hours", "BilledCost": 0.017179438794435856, "EffectiveCost": 0.017179438794435856, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Network", "ChargeCategory": "Usage", "ChargeDescription": "IP Address", "ConsumedQuantity": 3.6141666666666667, "ConsumedUnit": "Hours", "BilledCost": 0.015516772568550002, "EffectiveCost": 0.015516772568550002, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Machines", "ChargeCategory": "Usage", "ChargeDescription": "Standard SSD Managed Disks", "ConsumedQuantity": 0.004479, "ConsumedUnit": "Units/Month", "BilledCost": 0.009230293663060277, "EffectiveCost": 0.009230293663060277, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Machines", "ChargeCategory": "Usage", "ChargeDescription": "Standard SSD Managed Disks", "ConsumedQuantity": 11351.0, "ConsumedUnit": "Units", "BilledCost": 0.001949338828782414, "EffectiveCost": 0.001949338828782414, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Storage Accounts", "ChargeCategory": "Usage", "ChargeDescription": "Blob Storage", "ConsumedQuantity": 39.0, "ConsumedUnit": "Units", "BilledCost": 1.3395157135497e-05, "EffectiveCost": 1.3395157135497e-05, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Storage Accounts", "ChargeCategory": "Usage", "ChargeDescription": "Blob Storage", "ConsumedQuantity": 8.0, "ConsumedUnit": "Units", "BilledCost": 2.747724540614e-06, "EffectiveCost": 2.747724540614e-06, "BillingCurrency": "EUR", "PeriodStart": "2026-09-28 00:00", "PeriodEnd": "2026-09-29 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Storage Accounts", "ChargeCategory": "Usage", "ChargeDescription": "Blob Storage", "ConsumedQuantity": 1.0, "ConsumedUnit": "Units", "BilledCost": 3.43465567576e-07, "EffectiveCost": 3.43465567576e-07, "BillingCurrency": "EUR", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-10-01 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Storage Accounts", "ChargeCategory": "Usage", "ChargeDescription": "Bd Inter-Rgn", "ConsumedQuantity": 8e-06, "ConsumedUnit": "GB", "BilledCost": 1.3738622703e-07, "EffectiveCost": 1.3738622703e-07, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "Microsoft Azure", "ServiceName": "Virtual Machines", "ChargeCategory": "Usage", "ChargeDescription": "Bd Inter-Rgn", "ConsumedQuantity": 1.285225152969e-06, "ConsumedUnit": "GB", "BilledCost": 2.2071529331e-08, "EffectiveCost": 2.2071529331e-08, "BillingCurrency": "EUR", "PeriodStart": "2026-09-29 00:00", "PeriodEnd": "2026-09-30 00:00", "SubAccount": "Azure subscription"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.0104 per On Demand Linux t3.micro Instance Hour", "ConsumedQuantity": 1.0, "ConsumedUnit": "Hours", "BilledCost": 0.0104, "EffectiveCost": 0.0104, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 12:00", "PeriodEnd": "2026-09-29 13:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.0104 per On Demand Linux t3.micro Instance Hour", "ConsumedQuantity": 0.644444, "ConsumedUnit": "Hours", "BilledCost": 0.0067022176, "EffectiveCost": 0.0067022176, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Virtual Private Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per In-use public IPv4 address per hour", "ConsumedQuantity": 1.0, "ConsumedUnit": "Hours", "BilledCost": 0.005, "EffectiveCost": 0.005, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 12:00", "PeriodEnd": "2026-09-29 13:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.0104 per On Demand Linux t3.micro Instance Hour", "ConsumedQuantity": 0.36, "ConsumedUnit": "Hours", "BilledCost": 0.003744, "EffectiveCost": 0.003744, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 13:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Virtual Private Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per In-use public IPv4 address per hour", "ConsumedQuantity": 0.645833, "ConsumedUnit": "Hours", "BilledCost": 0.003229165, "EffectiveCost": 0.003229165, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Virtual Private Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per In-use public IPv4 address per hour", "ConsumedQuantity": 0.360556, "ConsumedUnit": "Hours", "BilledCost": 0.00180278, "EffectiveCost": 0.00180278, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 13:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.08 per GB-month of General Purpose (gp3) provisioned storage - US East (N. Virginia)", "ConsumedQuantity": 0.0111111111, "ConsumedUnit": "GB-Months", "BilledCost": 0.0008888889, "EffectiveCost": 0.0008888889, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 12:00", "PeriodEnd": "2026-09-29 13:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.08 per GB-month of General Purpose (gp3) provisioned storage - US East (N. Virginia)", "ConsumedQuantity": 0.0111111111, "ConsumedUnit": "GB-Months", "BilledCost": 0.0008888889, "EffectiveCost": 0.0008888889, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 15.0, "ConsumedUnit": "Requests", "BilledCost": 7.5e-05, "EffectiveCost": 7.5e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Usage", "ChargeDescription": "$0.05 per 10000 API Requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "API Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 19:00", "PeriodEnd": "2026-09-30 20:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 08:00", "PeriodEnd": "2026-09-30 09:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-09-30 01:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-09-30 01:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 08:00", "PeriodEnd": "2026-09-30 09:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 19:00", "PeriodEnd": "2026-09-30 20:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 20:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 1e-05, "EffectiveCost": 1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Usage", "ChargeDescription": "$0.08 per GB-month of General Purpose (gp3) provisioned storage - US East (N. Virginia)", "ConsumedQuantity": 8.33333e-05, "ConsumedUnit": "GB-Months", "BilledCost": 6.6667e-06, "EffectiveCost": 6.6667e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 13:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Usage", "ChargeDescription": "$0.05 per 10000 API Requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "API Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 17:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Usage", "ChargeDescription": "$0.05 per 10000 API Requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "API Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 Tier1 Annotation Requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 17:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 20:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 17:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 09:00", "PeriodEnd": "2026-09-30 10:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 12:00", "PeriodEnd": "2026-09-29 13:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 10:00", "PeriodEnd": "2026-09-30 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.005 per 1,000 PUT, COPY, POST, or LIST requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 5e-06, "EffectiveCost": 5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 4.0, "ConsumedUnit": "Requests", "BilledCost": 1.6e-06, "EffectiveCost": 1.6e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 3.0, "ConsumedUnit": "Requests", "BilledCost": 1.2e-06, "EffectiveCost": 1.2e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 3.0, "ConsumedUnit": "Requests", "BilledCost": 1.2e-06, "EffectiveCost": 1.2e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 11:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 2.0, "ConsumedUnit": "Requests", "BilledCost": 8e-07, "EffectiveCost": 8e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 20:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 20:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.004 per 10,000 GET and all other requests", "ConsumedQuantity": 1.0, "ConsumedUnit": "Requests", "BilledCost": 4e-07, "EffectiveCost": 4e-07, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 20:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "$0.023 per GB - first 50 TB / month of storage used", "ConsumedQuantity": 1.0807e-06, "ConsumedUnit": "GB-Months", "BilledCost": 2.49e-08, "EffectiveCost": 2.49e-08, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 01:00", "PeriodEnd": "2026-09-30 02:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 2.179e-07, "ConsumedUnit": "GB", "BilledCost": 4.4e-09, "EffectiveCost": 4.4e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 2.179e-07, "ConsumedUnit": "GB", "BilledCost": 4.4e-09, "EffectiveCost": 4.4e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 8.85e-08, "ConsumedUnit": "GB", "BilledCost": 1.8e-09, "EffectiveCost": 1.8e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 8.85e-08, "ConsumedUnit": "GB", "BilledCost": 1.8e-09, "EffectiveCost": 1.8e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 09:00", "PeriodEnd": "2026-09-30 10:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 8.2e-08, "ConsumedUnit": "GB", "BilledCost": 1.6e-09, "EffectiveCost": 1.6e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 8.2e-08, "ConsumedUnit": "GB", "BilledCost": 1.6e-09, "EffectiveCost": 1.6e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 6.71e-08, "ConsumedUnit": "GB", "BilledCost": 1.3e-09, "EffectiveCost": 1.3e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 21:00", "PeriodEnd": "2026-09-29 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Usage", "ChargeDescription": "USD 0.02 per GB for EUN1-AWS-Out-Bytes in EU (Stockholm)", "ConsumedQuantity": 6.71e-08, "ConsumedUnit": "GB", "BilledCost": 1.3e-09, "EffectiveCost": 1.3e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Data Transfer", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -1.4e-09, "EffectiveCost": -1.4e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 21:00", "PeriodEnd": "2026-09-29 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Data Transfer", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -1.8e-09, "EffectiveCost": -1.8e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 09:00", "PeriodEnd": "2026-09-30 10:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Data Transfer", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -6e-09, "EffectiveCost": -6e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Data Transfer", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -9.2e-09, "EffectiveCost": -9.2e-09, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -2.48e-08, "EffectiveCost": -2.48e-08, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 01:00", "PeriodEnd": "2026-09-30 02:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -4.4e-06, "EffectiveCost": -4.4e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 17:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 17:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 09:00", "PeriodEnd": "2026-09-30 10:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5e-06, "EffectiveCost": -5e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 16:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5.6e-06, "EffectiveCost": -5.6e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -5.6e-06, "EffectiveCost": -5.6e-06, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "AWS Secrets Manager", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -1e-05, "EffectiveCost": -1e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 12:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -2e-05, "EffectiveCost": -2e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-09-30 01:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -3e-05, "EffectiveCost": -3e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-28 21:00", "PeriodEnd": "2026-09-28 22:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -4e-05, "EffectiveCost": -4e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 10:00", "PeriodEnd": "2026-09-29 21:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -4.5e-05, "EffectiveCost": -4.5e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 18:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -6e-05, "EffectiveCost": -6e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 08:00", "PeriodEnd": "2026-09-30 20:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Simple Storage Service", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -8.5e-05, "EffectiveCost": -8.5e-05, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 11:00", "PeriodEnd": "2026-09-30 17:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -0.001784444, "EffectiveCost": -0.001784444, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Virtual Private Cloud", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -0.010031945, "EffectiveCost": -0.010031945, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "AWS", "ServiceName": "Amazon Elastic Compute Cloud", "ChargeCategory": "Credit", "ChargeDescription": "AWS Free Tier", "ConsumedQuantity": 0.0, "ConsumedUnit": "-", "BilledCost": -0.0208462176, "EffectiveCost": -0.0208462176, "BillingCurrency": "USD", "PeriodStart": "2026-09-29 11:00", "PeriodEnd": "2026-09-29 14:00", "SubAccount": "cloudbotanist"}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Data Storage (First 10GB-Month included)", "ChargeCategory": "Usage", "ChargeDescription": "R2 Data Storage (First 10GB-Month included) usage measured in GB-months", "ConsumedQuantity": 6.906166666666667e-06, "ConsumedUnit": "GB-months", "BilledCost": 0.0, "EffectiveCost": 0.0, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-10-01 00:00", "SubAccount": "demo-billing@example.com's Account"}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Storage Class A Operations (First 1M included)", "ChargeCategory": "Usage", "ChargeDescription": "R2 Storage Class A Operations (First 1M included) usage measured in Count", "ConsumedQuantity": 19.0, "ConsumedUnit": "Count", "BilledCost": 0.0, "EffectiveCost": 0.0, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-10-01 00:00", "SubAccount": "demo-billing@example.com's Account"}, {"ProviderName": "Cloudflare", "ServiceName": "R2 Storage Class B Operations (First 10M included)", "ChargeCategory": "Usage", "ChargeDescription": "R2 Storage Class B Operations (First 10M included) usage measured in Count", "ConsumedQuantity": 10.0, "ConsumedUnit": "Count", "BilledCost": 0.0, "EffectiveCost": 0.0, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 00:00", "PeriodEnd": "2026-10-01 00:00", "SubAccount": "demo-billing@example.com's Account"}, {"ProviderName": "Nebius B.V.", "ServiceName": "Compute", "ChargeCategory": "Usage", "ChargeDescription": "Non-GPU AMD Epyc Genoa. RAM", "ConsumedQuantity": 1.935555556, "ConsumedUnit": "GiB-Hours", "BilledCost": 0.006193778, "EffectiveCost": 0.006193778, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 13:19", "PeriodEnd": "2026-09-30 13:34", "SubAccount": "-"}, {"ProviderName": "Nebius B.V.", "ServiceName": "Compute", "ChargeCategory": "Usage", "ChargeDescription": "Non-GPU AMD Epyc Genoa. CPU", "ConsumedQuantity": 0.483888889, "ConsumedUnit": "Core-Hours", "BilledCost": 0.005806667, "EffectiveCost": 0.005806667, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 13:19", "PeriodEnd": "2026-09-30 13:34", "SubAccount": "-"}, {"ProviderName": "Nebius B.V.", "ServiceName": "Compute", "ChargeCategory": "Usage", "ChargeDescription": "Disk (Network SSD)", "ConsumedQuantity": 12.680555556, "ConsumedUnit": "GiB-Hours", "BilledCost": 0.001233311, "EffectiveCost": 0.001233311, "BillingCurrency": "USD", "PeriodStart": "2026-09-30 13:19", "PeriodEnd": "2026-09-30 13:34", "SubAccount": "-"}], "total_normalized_rows": 138, "total_raw_rows": 229, "pruned_count": 91};
+        let recentEvents = [{"filename": "AWSDemoReport-00001.snappy.parquet", "provider": "AWS", "currency": "USD", "rows": 181, "status": "success", "message": "Ingested AWSDemoReport-00001.snappy.parquet \u2014 Detected AWS (USD) \u2014 181 lines added", "timestamp": "13:43:19"}, {"filename": "AZUREpart_0_0001.snappy.parquet", "provider": "Azure", "currency": "USD", "rows": 19, "status": "success", "message": "Ingested AZUREpart_0_0001.snappy.parquet \u2014 Detected Azure (USD) \u2014 19 lines added", "timestamp": "13:43:19"}, {"filename": "GCP_cost_table.csv", "provider": "Google Cloud", "currency": "EUR", "rows": 22, "status": "success", "message": "Ingested GCP_cost_table.csv \u2014 Detected Google Cloud (EUR) \u2014 22 lines added", "timestamp": "13:43:19"}, {"filename": "NEBIUSnbs.tar.gz (2026-09.csv)", "provider": "Nebius B.V.", "currency": "USD", "rows": 4, "status": "success", "message": "Ingested NEBIUSnbs.tar.gz (2026-09.csv) \u2014 Detected Nebius B.V. (USD) \u2014 4 lines added", "timestamp": "13:43:19"}, {"filename": "cloudflare.json", "provider": "Cloudflare", "currency": "USD", "rows": 3, "status": "success", "message": "Ingested cloudflare.json \u2014 Detected Cloudflare (USD) \u2014 3 lines added", "timestamp": "13:43:19"}];
+        let currentRows = [];
+        let filteredRows = [];
+        let currentPage = 1;
+        const pageSize = 15;
+        let sortCol = 'BilledCost';
+        let sortAsc = false;
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            try { localStorage.setItem('cb_pitchdeck_theme', theme); } catch(e) {}
+            const btnL = document.getElementById('btnThemeLight');
+            const btnD = document.getElementById('btnThemeDark');
+            if (btnL && btnD) {
+                if (theme === 'dark') {
+                    btnD.classList.add('active');
+                    btnL.classList.remove('active');
+                } else {
+                    btnL.classList.add('active');
+                    btnD.classList.remove('active');
+                }
+            }
+        }
+
+        try {
+            const saved = localStorage.getItem('cb_pitchdeck_theme');
+            if (saved) setTheme(saved);
+        } catch(e) {}
+
+        function updateUI(data) {
+            rawData = data || {};
+            const usdTotal = rawData.currency_totals?.USD?.billed || 0;
+            const eurTotal = rawData.currency_totals?.EUR?.billed || 0;
+            const normRows = rawData.total_normalized_rows || 0;
+            const prunedRows = rawData.pruned_count || 0;
+
+            document.getElementById('card-usd-total').textContent = '$' + usdTotal.toFixed(6);
+            document.getElementById('card-eur-total').textContent = '€' + eurTotal.toFixed(6);
+            document.getElementById('card-row-count').textContent = normRows.toLocaleString();
+            document.getElementById('card-pruned-count').textContent = prunedRows.toLocaleString();
+            document.getElementById('card-records-chip').textContent = normRows + ' RECORDS';
+
+            // Breakdown chips
+            const usdProvs = (rawData.providers || []).filter(p => p.currency === 'USD');
+            const eurProvs = (rawData.providers || []).filter(p => p.currency === 'EUR');
+
+            document.getElementById('card-usd-breakdown').innerHTML = usdProvs.length > 0
+                ? usdProvs.map(p => `<span class="sub-chip">${p.provider}: $${p.billed_cost.toFixed(6)}</span>`).join('')
+                : '<span class="sub-chip">$0.00 USD</span>';
+
+            document.getElementById('card-eur-breakdown').innerHTML = eurProvs.length > 0
+                ? eurProvs.map(p => `<span class="sub-chip">${p.provider}: €${p.billed_cost.toFixed(6)}</span>`).join('')
+                : '<span class="sub-chip">€0.00 EUR</span>';
+
+            // Provider filter options
+            const provSelect = document.getElementById('provFilter');
+            const currentSelected = provSelect.value;
+            const provNames = [...new Set((rawData.providers || []).map(p => p.provider))].sort();
+            provSelect.innerHTML = '<option value="">All Providers</option>' + 
+                provNames.map(p => `<option value="${p}" ${p === currentSelected ? 'selected' : ''}>${p}</option>`).join('');
+
+            renderBars();
+
+            currentRows = [...(rawData.table_rows || [])];
+            filterData();
+        }
+
+        function renderBars() {
+            const usdContainer = document.getElementById('usd-bars');
+            const eurContainer = document.getElementById('eur-bars');
+
+            const usdProviders = (rawData.providers || []).filter(p => p.currency === 'USD');
+            const eurProviders = (rawData.providers || []).filter(p => p.currency === 'EUR');
+
+            const maxUSD = Math.max(...usdProviders.map(p => p.billed_cost), 0.0001);
+            const maxEUR = Math.max(...eurProviders.map(p => p.billed_cost), 0.0001);
+
+            usdContainer.innerHTML = usdProviders.length > 0 ? usdProviders.map(p => {
+                const pct = Math.max((p.billed_cost / maxUSD) * 100, p.billed_cost > 0 ? 5 : 2);
+                return `
+                <div class="bar-group">
+                    <div class="bar-label">
+                        <span><strong>${p.provider}</strong> (${p.normalized_rows} rows)</span>
+                        <span class="mono-val">$${p.billed_cost.toFixed(6)}</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-usd" style="width: ${pct}%;"></div>
+                    </div>
+                </div>`;
+            }).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-mono);">NO USD TELEMETRY IN ACTIVE LEDGER</div>';
+
+            eurContainer.innerHTML = eurProviders.length > 0 ? eurProviders.map(p => {
+                const pct = Math.max((p.billed_cost / maxEUR) * 100, p.billed_cost > 0 ? 5 : 2);
+                return `
+                <div class="bar-group">
+                    <div class="bar-label">
+                        <span><strong>${p.provider}</strong> (${p.normalized_rows} rows)</span>
+                        <span class="mono-val">€${p.billed_cost.toFixed(6)}</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill-eur" style="width: ${pct}%;"></div>
+                    </div>
+                </div>`;
+            }).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-mono);">NO EUR TELEMETRY IN ACTIVE LEDGER</div>';
+        }
+
+        function getProvBadge(prov) {
+            const p = prov || '';
+            if (p.includes('AWS')) return '<span class="prov-badge prov-aws">AWS</span>';
+            if (p.includes('Azure')) return '<span class="prov-badge prov-azure">Azure</span>';
+            if (p.includes('Google')) return '<span class="prov-badge prov-gcp">GCP</span>';
+            if (p.includes('Cloudflare')) return '<span class="prov-badge prov-cloudflare">Cloudflare</span>';
+            return `<span class="prov-badge prov-nebius">${p || 'Other'}</span>`;
+        }
+
+        function getCategoryBadge(cat) {
+            const c = (cat || 'Usage').toLowerCase();
+            if (c.includes('credit')) return `<span class="cat-badge cat-credit">${cat}</span>`;
+            if (c.includes('tax')) return `<span class="cat-badge cat-tax">${cat}</span>`;
+            return `<span class="cat-badge cat-usage">${cat || 'Usage'}</span>`;
+        }
+
+        function formatCost(val, curr) {
+            const sym = curr === 'USD' ? '$' : '€';
+            const num = parseFloat(val) || 0;
+            let cls = 'zero';
+            if (num > 0) cls = 'pos';
+            else if (num < 0) cls = 'credit';
+            return `<span class="cost-col ${cls}">${sym}${num.toFixed(6)}</span>`;
+        }
+
+        function filterData() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const prov = document.getElementById('provFilter').value;
+            const curr = document.getElementById('currFilter').value;
+            const cat = document.getElementById('catFilter').value;
+
+            filteredRows = currentRows.filter(r => {
+                if (prov && r.ProviderName !== prov) return false;
+                if (curr && r.BillingCurrency !== curr) return false;
+                if (cat && (!r.ChargeCategory || !r.ChargeCategory.toLowerCase().includes(cat.toLowerCase()))) return false;
+                if (query) {
+                    const matchString = `${r.ProviderName} ${r.ServiceName} ${r.ChargeDescription} ${r.SubAccount}`.toLowerCase();
+                    if (!matchString.includes(query)) return false;
+                }
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function sortTable(col) {
+            if (sortCol === col) {
+                sortAsc = !sortAsc;
+            } else {
+                sortCol = col;
+                sortAsc = true;
+            }
+            filteredRows.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    return sortAsc ? valA - valB : valB - valA;
+                }
+                valA = String(valA || '').toLowerCase();
+                valB = String(valB || '').toLowerCase();
+                return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            });
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const total = filteredRows.length;
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+
+            document.getElementById('startIdx').textContent = total > 0 ? start + 1 : 0;
+            document.getElementById('endIdx').textContent = end;
+            document.getElementById('totalFilterCount').textContent = total;
+
+            if (total === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 48px 16px; color: var(--text-secondary);">
+                            <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); font-family: var(--font-display);">NO TELEMETRY PARTITIONS LOADED</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">Ingest raw billing files (.parquet, .csv, .json, .tar.gz, .zip) into the intake card above.</div>
+                        </td>
+                    </tr>`;
+                renderPagination(0);
+                return;
+            }
+
+            const slice = filteredRows.slice(start, end);
+            tbody.innerHTML = slice.map(r => `
+                <tr>
+                    <td>${getProvBadge(r.ProviderName)}</td>
+                    <td><strong>${r.ServiceName}</strong></td>
+                    <td>${getCategoryBadge(r.ChargeCategory)}</td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${r.ChargeDescription}">${r.ChargeDescription}</td>
+                    <td class="telemetry-num">${typeof r.ConsumedQuantity === 'number' ? (r.ConsumedQuantity < 0.0001 && r.ConsumedQuantity > 0 ? r.ConsumedQuantity.toExponential(2) : r.ConsumedQuantity.toLocaleString(undefined, {maximumFractionDigits: 4})) : '-'}</td>
+                    <td><span class="sub-chip">${r.ConsumedUnit}</span></td>
+                    <td>${formatCost(r.BilledCost, r.BillingCurrency)}</td>
+                    <td>${formatCost(r.EffectiveCost, r.BillingCurrency)}</td>
+                    <td><span class="curr-badge curr-${(r.BillingCurrency || 'usd').toLowerCase()}">${r.BillingCurrency}</span></td>
+                    <td class="telemetry-num" style="font-size: 0.74rem; color: var(--text-muted);">${r.PeriodStart || '-'}</td>
+                </tr>
+            `).join('');
+
+            renderPagination(total);
+        }
+
+        function renderPagination(total) {
+            const container = document.getElementById('paginationControls');
+            const totalPages = Math.ceil(total / pageSize) || 1;
+            let html = `
+                <button class="page-btn" onclick="gotoPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Prev</button>
+            `;
+            for (let i = 1; i <= Math.min(totalPages, 8); i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="gotoPage(${i})">${i}</button>`;
+            }
+            html += `
+                <button class="page-btn" onclick="gotoPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
+            `;
+            container.innerHTML = html;
+        }
+
+        function gotoPage(p) {
+            currentPage = p;
+            renderTable();
+        }
+
+        // Drag & Drop Implementation
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const alertToast = document.getElementById('alertToast');
+        const activityList = document.getElementById('activityLogList');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            window.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        dropZone.addEventListener('dragover', () => {
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) uploadFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            if (files && files.length > 0) uploadFiles(files);
+        });
+
+        function showAlert(msg, type = 'success') {
+            let cls = 'alert-success';
+            if (type === 'error') cls = 'alert-error';
+            if (type === 'info') cls = 'alert-info';
+            alertToast.className = 'alert-toast ' + cls;
+            alertToast.innerHTML = msg;
+            alertToast.style.display = 'block';
+            setTimeout(() => { alertToast.style.display = 'none'; }, 6000);
+        }
+
+        let uploadMode = 'replace';
+
+        function setMode(mode) {
+            uploadMode = mode;
+            const btnReplace = document.getElementById('btnModeReplace');
+            const btnAppend = document.getElementById('btnModeAppend');
+            const statusText = document.getElementById('modeStatusText');
+
+            if (mode === 'replace') {
+                btnReplace.classList.add('active');
+                btnAppend.classList.remove('active');
+                if (statusText) {
+                    statusText.textContent = '[REPLACE ON DROP]';
+                    statusText.style.color = 'var(--accent-steel)';
+                }
+            } else {
+                btnAppend.classList.add('active');
+                btnReplace.classList.remove('active');
+                if (statusText) {
+                    statusText.textContent = '[APPEND]';
+                    statusText.style.color = 'var(--accent-phosphor)';
+                }
+            }
+        }
+
+        async function uploadFiles(fileList) {
+            if (!fileList || fileList.length === 0) return;
+
+            dropZone.classList.add('processing');
+            const modeDesc = uploadMode === 'replace' ? 'replacing active view' : 'appending to active view';
+            showAlert(`<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Sniffing schemas and ${modeDesc} with DuckDB...`, 'info');
+
+            const formData = new FormData();
+            formData.append('mode', uploadMode);
+            for (let i = 0; i < fileList.length; i++) {
+                formData.append('files', fileList[i]);
+            }
+
+            try {
+                const resp = await fetch(`/api/upload?mode=${encodeURIComponent(uploadMode)}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    updateUI(result.metrics);
+                    if (result.events && result.events.length > 0) {
+                        renderActivityEvents(result.events);
+                    }
+
+                    const allDup = result.events && result.events.length > 0 && result.events.every(ev => ev.status === 'duplicate');
+                    if (allDup) {
+                        showAlert(`<strong>File(s) already processed:</strong> Ingestion timestamp re-verified.`, 'info');
+                    } else {
+                        let warningText = '';
+                        if (result.warnings && result.warnings.length > 0) {
+                            warningText = `<br><span style="font-size:0.78rem; color:var(--signal-amber);">Warning: ${result.warnings.join(', ')}</span>`;
+                        }
+                        const modeTag = uploadMode === 'replace' ? 'Replace Mode' : 'Append Mode';
+                        showAlert(`<strong>Success [${modeTag}]!</strong> Processed ${fileList.length} file(s) into FOCUS 1.2 format.${warningText}`, 'success');
+                    }
+                } else {
+                    showAlert(`<strong>Error:</strong> ${result.error || 'Failed to normalize upload'}`, 'error');
+                }
+            } catch (err) {
+                showAlert(`<strong>Network Error:</strong> ${err.message}`, 'error');
+            } finally {
+                dropZone.classList.remove('processing');
+                fileInput.value = '';
+            }
+        }
+
+        async function handleReset() {
+            dropZone.classList.add('processing');
+            showAlert('<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Clearing in-memory database and resetting spend ledger...', 'info');
+            try {
+                const resp = await fetch('/api/reset', { method: 'POST' });
+                const result = await resp.json();
+                if (result.success) {
+                    updateUI(result.metrics);
+                    if (result.events && result.events.length > 0) {
+                        renderActivityEvents(result.events);
+                    }
+                    showAlert(`<strong>Ledger Reset:</strong> All in-memory data cleared to $0.00. Ready for new files.`, 'success');
+                } else {
+                    showAlert(`<strong>Reset Error:</strong> ${result.error}`, 'error');
+                }
+            } catch (err) {
+                showAlert(`<strong>Network Error:</strong> ${err.message}`, 'error');
+            } finally {
+                dropZone.classList.remove('processing');
+            }
+        }
+
+        function renderActivityEvents(events) {
+            if (!events || events.length === 0) return;
+            const itemsHtml = events.map(ev => {
+                let badgeClass = 'badge-act-success';
+                let badgeIcon = '✔';
+                if (ev.status === 'duplicate') {
+                    badgeClass = 'badge-act-info';
+                    badgeIcon = 'ℹ';
+                } else if (ev.status === 'skipped' || ev.status === 'unsupported') {
+                    badgeClass = 'badge-act-warning';
+                    badgeIcon = '⚠';
+                } else if (ev.status === 'reset') {
+                    badgeClass = 'badge-act-reset';
+                    badgeIcon = '⟲';
+                }
+                return `
+                <div class="activity-item">
+                    <div class="activity-item-left">
+                        <span class="activity-badge ${badgeClass}">${badgeIcon}</span>
+                        <span class="activity-text">${ev.message}</span>
+                    </div>
+                    <span class="activity-time">${ev.timestamp || ''}</span>
+                </div>`;
+            }).join('');
+
+            activityList.innerHTML = itemsHtml + activityList.innerHTML;
+        }
+
+        function clearActivityLog() {
+            activityList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Telemetry stream cleared. Ingest partitions above.</div>';
+        }
+
+        // Listeners
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('provFilter').addEventListener('change', filterData);
+        document.getElementById('currFilter').addEventListener('change', filterData);
+        document.getElementById('catFilter').addEventListener('change', filterData);
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const headers = ['ProviderName', 'ServiceName', 'ChargeCategory', 'ChargeDescription', 'ConsumedQuantity', 'ConsumedUnit', 'BilledCost', 'EffectiveCost', 'BillingCurrency', 'PeriodStart', 'PeriodEnd'];
+            const rows = filteredRows.map(r => [
+                r.ProviderName,
+                `"${(r.ServiceName || '').replace(/"/g, '""')}"`,
+                r.ChargeCategory,
+                `"${(r.ChargeDescription || '').replace(/"/g, '""')}"`,
+                r.ConsumedQuantity,
+                r.ConsumedUnit,
+                r.BilledCost,
+                r.EffectiveCost,
+                r.BillingCurrency,
+                r.PeriodStart,
+                r.PeriodEnd
+            ].join(','));
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'focus_filtered_export.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Initial setup
+        updateUI(rawData);
+        if (recentEvents && recentEvents.length > 0) {
+            renderActivityEvents(recentEvents);
+        }
+    </script>
+</body>
+</html>

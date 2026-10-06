@@ -601,7 +601,7 @@ class FocusEngine:
     def __init__(self, data_dir: str = SCRIPT_DIR):
         self.data_dir = data_dir
         self.con = duckdb.connect(database=":memory:")
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.provider_tables = {}
         self.ingested_hashes = {}
         self.recent_events = []
@@ -702,6 +702,31 @@ class FocusEngine:
             }
             self.recent_events.insert(0, reset_event)
             self.log("Product Manager", "In-memory database state and provider tables reset.")
+            generate_interactive_dashboard(self.metrics, self.recent_events)
+            return self.metrics
+
+    def reload_initial(self) -> dict:
+        """Clears the active ledger and re-ingests all candidate billing files in the directory."""
+        with self.lock:
+            self.provider_tables.clear()
+            self.ingested_hashes.clear()
+            self.con.execute("DROP TABLE IF EXISTS raw_combined;")
+            self.con.execute("DROP TABLE IF EXISTS unified_focus;")
+            self.metrics = self.get_empty_metrics()
+            self.latest_warnings = []
+            self.recent_events = []
+            self.load_initial_files()
+            total_norm = self.metrics.get("total_normalized_rows", 0)
+            reload_event = {
+                "filename": "Sample Datasets",
+                "provider": "All (AWS, Azure, GCP, Cloudflare, Nebius)",
+                "currency": "USD/EUR",
+                "rows": total_norm,
+                "status": "success",
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "message": f"Reloaded all 5 multi-cloud sample datasets ({total_norm} FOCUS 1.2 records restored)."
+            }
+            self.recent_events.insert(0, reload_event)
             generate_interactive_dashboard(self.metrics, self.recent_events)
             return self.metrics
 
@@ -1034,6 +1059,17 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
         if self.command == "POST" or "500" in str(args):
             super().log_message(format, *args)
 
+    def do_HEAD(self):
+        self.do_GET()
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, *")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path in ("/", "/report.html", "/index.html"):
@@ -1049,6 +1085,7 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
             if os.path.exists(OUTPUT_PARQUET):
                 self.send_response(200)
                 self.send_header("Content-Type", "application/octet-stream")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Content-Disposition", "attachment; filename=unified_focus.parquet")
                 self.send_header("Content-Length", str(os.path.getsize(OUTPUT_PARQUET)))
                 self.end_headers()
@@ -1063,6 +1100,7 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
             if os.path.exists(target_logo):
                 self.send_response(200)
                 self.send_header("Content-Type", "image/png")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Content-Length", str(os.path.getsize(target_logo)))
                 self.end_headers()
                 with open(target_logo, "rb") as f:
@@ -1078,6 +1116,8 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
             self.handle_upload(parsed)
         elif parsed.path == "/api/reset":
             self.handle_reset()
+        elif parsed.path == "/api/reload":
+            self.handle_reload()
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -1090,12 +1130,22 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
             "events": self.engine.recent_events
         })
 
+    def handle_reload(self):
+        metrics = self.engine.reload_initial()
+        self.serve_json({
+            "success": True,
+            "message": "All 5 local sample multi-cloud datasets reloaded successfully.",
+            "metrics": metrics,
+            "events": self.engine.recent_events
+        })
+
     def serve_html(self):
         if os.path.exists(OUTPUT_HTML):
             with open(OUTPUT_HTML, "rb") as f:
                 content = f.read()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Content-Length", str(len(content)))
             self.end_headers()
             self.wfile.write(content)
@@ -1106,6 +1156,9 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
         body = json.dumps(data).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, *")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -1582,6 +1635,28 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-color: var(--accent-steel);
             color: #ffffff;
             font-weight: 700;
+        }}
+
+        .btn-subtle-action {{
+            background: var(--bg-surface);
+            border: 1px solid var(--accent-steel-border);
+            color: var(--accent-steel);
+            padding: 6px 12px;
+            border-radius: var(--radius-control);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }}
+        .btn-subtle-action:hover {{
+            background: var(--accent-steel-subtle);
+            border-color: var(--accent-steel);
+            color: var(--accent-steel-hover);
         }}
 
         .btn-reset {{
@@ -2373,6 +2448,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     Dark
                 </button>
             </div>
+            <button class="btn-subtle-action" id="reloadBtn" onclick="handleReload()" title="Reload all 5 local sample multi-cloud datasets (AWS, Azure, GCP, Cloudflare, Nebius)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Reload Demo Data
+            </button>
             <button class="btn-reset" id="resetBtn" onclick="handleReset()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
                     <polyline points="1 4 1 10 7 10"></polyline>
@@ -2440,7 +2523,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 </div>
             </div>
 
-            <input type="file" id="fileInput" multiple>
+            <input type="file" id="fileInput" multiple style="display: none;" onclick="event.stopPropagation()">
         </div>
         <div id="alertToast" class="alert-toast"></div>
 
@@ -2925,6 +3008,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             }}
         }}
 
+        const apiBase = (window.location.protocol === 'file:' || !window.location.port) ? 'http://localhost:8000' : '';
+
         async function uploadFiles(fileList) {{
             if (!fileList || fileList.length === 0) return;
 
@@ -2939,7 +3024,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             }}
 
             try {{
-                const resp = await fetch(`/api/upload?mode=${{encodeURIComponent(uploadMode)}}`, {{
+                const resp = await fetch(`${{apiBase}}/api/upload?mode=${{encodeURIComponent(uploadMode)}}`, {{
                     method: 'POST',
                     body: formData
                 }});
@@ -2976,7 +3061,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             dropZone.classList.add('processing');
             showAlert('<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Clearing in-memory database and resetting spend ledger...', 'info');
             try {{
-                const resp = await fetch('/api/reset', {{ method: 'POST' }});
+                const resp = await fetch(`${{apiBase}}/api/reset`, {{ method: 'POST' }});
                 const result = await resp.json();
                 if (result.success) {{
                     updateUI(result.metrics);
@@ -2986,6 +3071,28 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     showAlert(`<strong>Ledger Reset:</strong> All in-memory data cleared to $0.00. Ready for new files.`, 'success');
                 }} else {{
                     showAlert(`<strong>Reset Error:</strong> ${{result.error}}`, 'error');
+                }}
+            }} catch (err) {{
+                showAlert(`<strong>Network Error:</strong> ${{err.message}}`, 'error');
+            }} finally {{
+                dropZone.classList.remove('processing');
+            }}
+        }}
+
+        async function handleReload() {{
+            dropZone.classList.add('processing');
+            showAlert('<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Reloading all sample cloud billing partitions (AWS, Azure, GCP, Cloudflare, Nebius)...', 'info');
+            try {{
+                const resp = await fetch(`${{apiBase}}/api/reload`, {{ method: 'POST' }});
+                const result = await resp.json();
+                if (result.success) {{
+                    updateUI(result.metrics);
+                    if (result.events && result.events.length > 0) {{
+                        renderActivityEvents(result.events);
+                    }}
+                    showAlert(`<strong>Demo Restored:</strong> Ingested ${{result.metrics?.total_normalized_rows || 0}} FOCUS 1.2 records across all 5 cloud providers.`, 'success');
+                }} else {{
+                    showAlert(`<strong>Reload Error:</strong> ${{result.error}}`, 'error');
                 }}
             }} catch (err) {{
                 showAlert(`<strong>Network Error:</strong> ${{err.message}}`, 'error');
@@ -3062,6 +3169,30 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         updateUI(rawData);
         if (recentEvents && recentEvents.length > 0) {{
             renderActivityEvents(recentEvents);
+        }}
+
+        // Offline file:// helper: update direct file export links and ping local server
+        if (window.location.protocol === 'file:') {{
+            const dlParquet = document.querySelector('a[href="/unified_focus.parquet"]');
+            if (dlParquet) dlParquet.href = 'http://localhost:8000/unified_focus.parquet';
+            const dlDuckdb = document.querySelector('a[href="/unified_focus.duckdb"]');
+            if (dlDuckdb) dlDuckdb.href = 'http://localhost:8000/unified_focus.duckdb';
+
+            fetch('http://localhost:8000/api/data')
+                .then(r => r.json())
+                .then(d => {{
+                    if (d.success) {{
+                        updateUI(d.metrics);
+                        if (d.events && d.events.length > 0) renderActivityEvents(d.events);
+                    }}
+                }})
+                .catch(() => {{
+                    const notice = document.createElement('div');
+                    notice.style.cssText = 'background: rgba(217, 119, 6, 0.15); border: 1px solid var(--signal-amber); color: var(--signal-amber); padding: 8px 16px; margin-bottom: 16px; border-radius: var(--radius-control); font-size: 0.82rem; font-family: var(--font-mono);';
+                    notice.innerHTML = '⚡ NOTE: Viewing via file:// protocol. For live drag-and-drop ingestion, run <code>python3 focus_engine.py</code> and navigate to <a href="http://localhost:8000" style="color:inherit; font-weight:700;">http://localhost:8000</a>.';
+                    const header = document.querySelector('.header');
+                    if (header && header.parentNode) header.parentNode.insertBefore(notice, header.nextSibling);
+                }});
         }}
     </script>
 </body>

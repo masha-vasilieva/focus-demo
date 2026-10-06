@@ -38,7 +38,12 @@ import duckdb
 # ----------------------------------------------------------------------
 # Paths & Defaults
 # ----------------------------------------------------------------------
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+try:
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+except Exception:
+    SCRIPT_DIR = "/app/focus-engine"
+if not SCRIPT_DIR or SCRIPT_DIR == ".":
+    SCRIPT_DIR = "/app/focus-engine"
 DEFAULT_PORT = 8000
 OUTPUT_PARQUET = os.path.join(SCRIPT_DIR, "unified_focus.parquet")
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, "report.html")
@@ -740,7 +745,23 @@ class FocusEngine:
         """Scans the local directory for existing raw files and auto-ingests them on startup."""
         raw_candidates = set()
         for ext in ["*.snappy.parquet", "*.parquet", "*.tar.gz", "*.zip", "*.json", "*.csv"]:
-            raw_candidates.update(glob.glob(os.path.join(self.data_dir, ext)))
+            try:
+                raw_candidates.update(glob.glob(os.path.join(self.data_dir, ext)))
+            except Exception:
+                pass
+
+        # Robust fallback for protected directories (e.g. macOS TCC): check known sample datasets
+        fallback_samples = [
+            "AWSDemoReport-00001.snappy.parquet",
+            "AZUREpart_0_0001.snappy.parquet",
+            "GCP_cost_table.csv",
+            "NEBIUSnbs.tar.gz",
+            "cloudflare.json"
+        ]
+        for s in fallback_samples:
+            target = os.path.join(self.data_dir, s)
+            if os.path.isfile(target):
+                raw_candidates.add(target)
 
         # Exclude artifacts and hidden files
         to_process = sorted([
@@ -2450,7 +2471,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     </a>
                     <a href="https://www.linkedin.com/in/leovsl" target="_blank" rel="noopener noreferrer" class="meta-social-link" title="Leo Vasiliev (linkedin.com/in/leovsl)" aria-label="Leo Vasiliev LinkedIn">
                         <svg class="linkedin-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.54a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28z"/>
+                            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.54a1.64 1.64 0 1 0 0 3.28 1.64 1.64 0 0 0 0-3.28z"/>
                         </svg>
                     </a>
                 </div>

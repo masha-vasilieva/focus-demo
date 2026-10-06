@@ -1395,7 +1395,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <title>Cloud Botanist AI • FOCUS 1.2 Telemetry & Spend Governance</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {{
             /* Blueprint Light Theme (Slides 1, 2, 3, 5, 6, 7) */
@@ -1429,13 +1429,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             --signal-amber: #d97706;
             --signal-ember: #e11d48;
 
-            /* Typography */
+            /* Typography: Headings Barlow Condensed Bold, Body Barlow Regular, TAGS Barlow Light */
             --text-primary: #12161c;
             --text-secondary: #526071;
             --text-muted: #8292a2;
 
             --font-display: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-sans: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-tag: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
 
             /* Hard Layout Constraints */
@@ -1511,9 +1512,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-family: inherit;
         }}
 
-        /* Blueprint Architectural Typography - High-Impact Condensed Grotesque */
+        /* Blueprint Architectural Typography - Headings: Barlow Condensed Bold */
         h1, h2, h3, h4, th, .display-font, .stat-number, .spend-card-label {{
             font-family: var(--font-display);
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.02em;
         }}
@@ -1521,7 +1523,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .telemetry-num,
         .cost-col,
         .mono-val,
-        .format-pill,
         code,
         pre {{
             font-family: var(--font-mono) !important;
@@ -1537,14 +1538,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             user-select: none;
         }}
 
-        /* Top Slide Meta Bar */
+        /* Top Slide Meta Bar - TAGS / Meta Rail: Barlow Light */
         .deck-top-meta {{
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            font-weight: 700;
+            font-family: var(--font-tag);
+            font-size: 0.72rem;
+            font-weight: 300;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--text-muted);
@@ -1575,8 +1576,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .meta-link {{
             color: var(--accent-steel);
             text-decoration: none;
-            font-family: var(--font-mono);
-            font-weight: 700;
+            font-family: var(--font-tag);
+            font-weight: 400;
             letter-spacing: 0.06em;
             text-transform: lowercase;
             transition: color 0.15s ease, opacity 0.15s ease;
@@ -1592,10 +1593,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             gap: 6px;
         }}
         .meta-social-label {{
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            font-weight: 700;
+            font-family: var(--font-tag);
+            font-size: 0.72rem;
+            font-weight: 300;
             letter-spacing: 0.08em;
+            text-transform: uppercase;
             color: var(--text-muted);
             user-select: none;
         }}
@@ -1666,8 +1668,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .header-title h1 {{
+            font-family: var(--font-display);
             font-size: 1.85rem;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--text-primary);
             display: flex;
             align-items: center;
@@ -1678,8 +1681,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         .header-title h1 .brand-sub {{
             font-size: 0.72rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
+            font-weight: 300;
+            font-family: var(--font-tag);
             color: var(--accent-steel);
             background: var(--accent-steel-subtle);
             border: 1px solid var(--accent-steel-border);
@@ -1687,12 +1690,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-radius: var(--radius-sm);
             letter-spacing: 0.08em;
             vertical-align: middle;
+            text-transform: uppercase;
         }}
 
         .header-title p {{
+            font-family: var(--font-sans);
             color: var(--text-secondary);
             font-size: 0.76rem;
-            font-weight: 600;
+            font-weight: 400;
             letter-spacing: 0.06em;
             text-transform: uppercase;
             margin-top: 5px;
@@ -1713,14 +1718,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .badge {{
             padding: 4px 8px;
             border-radius: var(--radius-sm);
-            font-size: 0.68rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 300;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
         }}
 
         .badge-focus {{
@@ -1757,13 +1762,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .pill-title {{
-            font-size: 0.65rem;
-            font-weight: 700;
+            font-size: 0.68rem;
+            font-weight: 300;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--text-muted);
             padding: 0 4px 0 6px;
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
         }}
 
         .pill-btn {{
@@ -1934,12 +1939,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .tab-badge-pill {{
             background: var(--accent-sprout);
             color: #ffffff;
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            font-weight: 700;
+            font-family: var(--font-tag);
+            font-size: 0.65rem;
+            font-weight: 300;
             padding: 2px 6px;
             border-radius: 10px;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
 
         [data-theme="dark"] .tab-badge-pill {{
@@ -1956,9 +1962,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: flex;
             align-items: center;
             gap: 6px;
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
             font-size: 0.72rem;
-            font-weight: 700;
+            font-weight: 300;
             color: var(--text-muted);
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -2054,24 +2060,24 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .gen-box-tag {{
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
             font-size: 0.68rem;
-            font-weight: 700;
+            font-weight: 300;
             color: var(--accent-steel);
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
 
         .gen-box-badge {{
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            font-weight: 700;
+            font-family: var(--font-tag);
+            font-size: 0.68rem;
+            font-weight: 300;
             color: var(--accent-sprout);
             background: var(--accent-sprout-subtle);
             border: 1px solid var(--accent-sprout-border);
             padding: 2px 6px;
             border-radius: var(--radius-sm);
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
 
@@ -2139,9 +2145,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .gen-presets-title {{
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
             font-size: 0.7rem;
-            font-weight: 700;
+            font-weight: 300;
             color: var(--text-muted);
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -2195,9 +2201,12 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .preset-text span {{
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -2284,7 +2293,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-size: 0.76rem;
             color: var(--text-muted);
             margin-top: 4px;
-            font-family: var(--font-mono);
+            font-family: var(--font-sans);
+            font-weight: 400;
         }}
 
         .spend-card-header {{
@@ -2335,8 +2345,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .format-pill {{
+            font-family: var(--font-tag) !important;
             font-size: 0.68rem;
-            font-weight: 700;
+            font-weight: 300 !important;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             padding: 2px 7px;
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-color);
@@ -2381,8 +2394,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         .mode-status-text {{
             color: var(--accent-steel);
-            font-weight: 700;
-            font-family: var(--font-mono);
+            font-weight: 300;
+            font-family: var(--font-tag);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }}
 
         #fileInput {{
@@ -2435,15 +2450,15 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .panel-title {{
-            font-size: 0.74rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
-            font-family: var(--font-mono);
+            font-family: var(--font-display);
         }}
 
         .btn-subtle {{
@@ -2498,9 +2513,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             height: 16px;
             border-radius: var(--radius-sm);
             font-size: 0.65rem;
-            font-weight: 700;
+            font-weight: 300;
             flex-shrink: 0;
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
         }}
 
         .badge-act-success {{ background: var(--accent-sprout-subtle); color: var(--accent-sprout); border: 1px solid var(--accent-sprout-border); }}
@@ -2513,8 +2528,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
         .activity-time {{
             color: var(--text-muted);
-            font-size: 0.7rem;
-            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-family: var(--font-tag);
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             margin-left: 10px;
         }}
 
@@ -2538,24 +2556,24 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .stat-index {{
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
+            font-family: var(--font-display);
+            font-size: 0.78rem;
             font-weight: 700;
             color: var(--text-muted);
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }}
 
         .stat-tag {{
-            font-size: 0.65rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 300;
+            font-family: var(--font-tag);
             color: var(--text-secondary);
             padding: 1px 6px;
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-sm);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
         .stat-tag.invariant {{
@@ -2593,8 +2611,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-sm);
-            font-size: 0.7rem;
-            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-family: var(--font-tag);
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             color: var(--text-secondary);
         }}
 
@@ -2614,9 +2635,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .curr-pill {{
-            font-size: 0.65rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 300;
+            font-family: var(--font-tag);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             padding: 2px 7px;
             border-radius: var(--radius-sm);
         }}
@@ -2800,10 +2823,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             align-items: center;
             padding: 2px 7px;
             border-radius: var(--radius-sm);
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
             font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
+            font-weight: 300;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }}
         .prov-aws {{ background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.28); }}
@@ -2817,9 +2840,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 2px 5px;
             border-radius: var(--radius-sm);
             font-size: 0.68rem;
-            font-weight: 700;
-            font-family: var(--font-mono);
-            letter-spacing: 0.04em;
+            font-weight: 300;
+            font-family: var(--font-tag);
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }}
         .curr-usd {{ background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }}
@@ -2829,10 +2852,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: inline-block;
             padding: 2px 6px;
             border-radius: var(--radius-sm);
-            font-family: var(--font-mono);
+            font-family: var(--font-tag);
             font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
+            font-weight: 300;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
         }}
         .cat-usage {{ background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }}
@@ -2895,8 +2918,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             align-items: center;
             font-size: 0.72rem;
             color: var(--text-muted);
-            font-family: var(--font-mono);
-            letter-spacing: 0.06em;
+            font-family: var(--font-tag);
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
     </style>
 </head>
@@ -3167,7 +3192,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
             <div class="activity-list" id="activityLogList">
-                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Awaiting cloud billing telemetry stream. Ingest files above or click 'Reload Demo Data'.</div>
+                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Awaiting cloud billing telemetry stream. Ingest files above or click 'Reload Demo Data'.</div>
             </div>
         </div>
     </div>
@@ -3413,7 +3438,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                         <div class="bar-fill bar-fill-usd" style="width: ${{pct}}%;"></div>
                     </div>
                 </div>`;
-            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-mono);">NO USD TELEMETRY IN ACTIVE LEDGER</div>';
+            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO USD TELEMETRY IN ACTIVE LEDGER</div>';
 
             eurContainer.innerHTML = eurProviders.length > 0 ? eurProviders.map(p => {{
                 const pct = Math.max((p.billed_cost / maxEUR) * 100, p.billed_cost > 0 ? 5 : 2);
@@ -3427,7 +3452,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                         <div class="bar-fill bar-fill-eur" style="width: ${{pct}}%;"></div>
                     </div>
                 </div>`;
-            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-mono);">NO EUR TELEMETRY IN ACTIVE LEDGER</div>';
+            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO EUR TELEMETRY IN ACTIVE LEDGER</div>';
         }}
 
         function getProvBadge(prov) {{
@@ -3511,7 +3536,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 48px 16px; color: var(--text-secondary);">
                             <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); font-family: var(--font-display);">NO TELEMETRY PARTITIONS LOADED</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">Ingest raw billing files (.parquet, .csv, .json, .tar.gz, .zip) into the intake card above.</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-sans); font-weight: 400;">Ingest raw billing files (.parquet, .csv, .json, .tar.gz, .zip) into the intake card above.</div>
                         </td>
                     </tr>`;
                 renderPagination(0);
@@ -3778,7 +3803,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         function clearActivityLog() {{
-            activityList.innerHTML = '<div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Telemetry stream cleared. Ingest partitions above.</div>';
+            activityList.innerHTML = '<div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Telemetry stream cleared. Ingest partitions above.</div>';
         }}
 
         // Listeners
@@ -3842,7 +3867,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 }})
                 .catch(() => {{
                     const notice = document.createElement('div');
-                    notice.style.cssText = 'background: rgba(217, 119, 6, 0.15); border: 1px solid var(--signal-amber); color: var(--signal-amber); padding: 8px 16px; margin-bottom: 16px; border-radius: var(--radius-control); font-size: 0.82rem; font-family: var(--font-mono);';
+                    notice.style.cssText = 'background: rgba(217, 119, 6, 0.15); border: 1px solid var(--signal-amber); color: var(--signal-amber); padding: 8px 16px; margin-bottom: 16px; border-radius: var(--radius-control); font-size: 0.82rem; font-family: var(--font-sans); font-weight: 400;';
                     notice.innerHTML = '⚡ NOTE: Viewing via file:// protocol. For live drag-and-drop ingestion, run <code>python3 focus_engine.py</code> and navigate to <a href="http://localhost:8000" style="color:inherit; font-weight:700;">http://localhost:8000</a>.';
                     const header = document.querySelector('.header');
                     if (header && header.parentNode) header.parentNode.insertBefore(notice, header.nextSibling);

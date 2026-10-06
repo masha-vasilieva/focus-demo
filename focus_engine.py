@@ -613,27 +613,10 @@ class FocusEngine:
         self.metrics = self.get_empty_metrics()
         self.audit_log = []
         self.latest_warnings = []
+        self._init_empty_schema()
 
-    def get_empty_metrics(self) -> dict:
-        return {
-            "providers": [],
-            "currency_totals": {
-                "USD": {"billed": 0.0, "effective": 0.0, "normalized_rows": 0, "raw_rows": 0},
-                "EUR": {"billed": 0.0, "effective": 0.0, "normalized_rows": 0, "raw_rows": 0}
-            },
-            "top_services": [],
-            "table_rows": [],
-            "total_normalized_rows": 0,
-            "total_raw_rows": 0,
-            "pruned_count": 0
-        }
-
-    def reset(self) -> dict:
+    def _init_empty_schema(self):
         with self.lock:
-            self.provider_tables.clear()
-            self.ingested_hashes.clear()
-            self.con.execute("DROP TABLE IF EXISTS raw_combined;")
-            self.con.execute("DROP TABLE IF EXISTS unified_focus;")
             self.con.execute("""
             CREATE OR REPLACE TABLE unified_focus (
                 ProviderName VARCHAR,
@@ -693,6 +676,28 @@ class FocusEngine:
                 Tags VARCHAR
             );
             """)
+
+    def get_empty_metrics(self) -> dict:
+        return {
+            "providers": [],
+            "currency_totals": {
+                "USD": {"billed": 0.0, "effective": 0.0, "normalized_rows": 0, "raw_rows": 0},
+                "EUR": {"billed": 0.0, "effective": 0.0, "normalized_rows": 0, "raw_rows": 0}
+            },
+            "top_services": [],
+            "table_rows": [],
+            "total_normalized_rows": 0,
+            "total_raw_rows": 0,
+            "pruned_count": 0
+        }
+
+    def reset(self) -> dict:
+        with self.lock:
+            self.provider_tables.clear()
+            self.ingested_hashes.clear()
+            self.con.execute("DROP TABLE IF EXISTS raw_combined;")
+            self.con.execute("DROP TABLE IF EXISTS unified_focus;")
+            self._init_empty_schema()
             self.con.execute(f"COPY unified_focus TO '{OUTPUT_PARQUET}' (FORMAT PARQUET, COMPRESSION 'ZSTD');")
             self.metrics = self.get_empty_metrics()
             self.latest_warnings = []
@@ -741,8 +746,8 @@ class FocusEngine:
         self.audit_log.append(msg)
         print(msg)
 
-    def load_initial_files(self):
-        """Scans the local directory for existing raw files and auto-ingests them on startup."""
+    def load_initial_files(self, generate_report: bool = True):
+        """Scans the local directory for existing raw files and auto-ingests them."""
         raw_candidates = set()
         for ext in ["*.snappy.parquet", "*.parquet", "*.tar.gz", "*.zip", "*.json", "*.csv"]:
             try:
@@ -771,9 +776,9 @@ class FocusEngine:
         ])
         if to_process:
             self.log("Product Manager", f"Auto-detecting initial local billing files: {len(to_process)} candidate(s) found.")
-            self.ingest_files(to_process)
+            self.ingest_files(to_process, generate_report=generate_report)
 
-    def ingest_files(self, file_paths: list[str], mode: str = "replace") -> tuple[dict, list[dict]]:
+    def ingest_files(self, file_paths: list[str], mode: str = "replace", generate_report: bool = True) -> tuple[dict, list[dict]]:
         """Dynamically ingests and normalizes any set of files.
         Mode 'replace' (default): active ledger is replaced with only the newly dropped batch.
         Mode 'append': new file(s) are accumulated into the active ledger.
@@ -845,7 +850,8 @@ class FocusEngine:
             if not normalizer.staged_tables:
                 if not self.provider_tables:
                     self.metrics = self.get_empty_metrics()
-                    generate_interactive_dashboard(self.metrics, self.recent_events)
+                    if generate_report:
+                        generate_interactive_dashboard(self.metrics, self.recent_events)
                 return self.metrics, events
 
             # In replace mode, clear prior active tables and hashes
@@ -933,7 +939,8 @@ class FocusEngine:
 
             # Collect updated metrics
             self.collect_metrics(raw_recon, pruned_recon)
-            generate_interactive_dashboard(self.metrics, self.recent_events)
+            if generate_report:
+                generate_interactive_dashboard(self.metrics, self.recent_events)
             return self.metrics, events
 
     def collect_metrics(self, raw_recon, pruned_recon):
@@ -1030,6 +1037,10 @@ class FocusEngine:
         print("=" * 94)
         print(f"{'Provider':<18} | {'Currency':<8} | {'Raw Rows':<9} | {'Norm Rows':<9} | {'Pruned':<7} | {'Net Billed Cost':<18} | {'Net Effective Cost':<18}")
         print("-" * 94)
+
+        if not self.metrics.get("providers"):
+            print(f"  [AWAITING BILLING TELEMETRY] Active ledger is at $0.00. Drag & drop files or click Reload Demo Data.")
+            print("-" * 94)
 
         current_curr = None
         for p in self.metrics["providers"]:
@@ -2598,7 +2609,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 </span>
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
-            <div class="activity-list" id="activityLogList"></div>
+            <div class="activity-list" id="activityLogList">
+                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Awaiting cloud billing telemetry stream. Ingest files above or click 'Reload Demo Data'.</div>
+            </div>
         </div>
     </div>
 
@@ -3152,6 +3165,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         function renderActivityEvents(events) {{
             if (!events || events.length === 0) return;
+            const placeholder = activityList.querySelector('.activity-placeholder');
+            if (placeholder) {{
+                placeholder.remove();
+            }}
             const itemsHtml = events.map(ev => {{
                 let badgeClass = 'badge-act-success';
                 let badgeIcon = '✔';
@@ -3179,7 +3196,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         function clearActivityLog() {{
-            activityList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Telemetry stream cleared. Ingest partitions above.</div>';
+            activityList.innerHTML = '<div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-mono);">Telemetry stream cleared. Ingest partitions above.</div>';
         }}
 
         // Listeners
@@ -3257,7 +3274,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 # ----------------------------------------------------------------------
 def run_server(port: int = DEFAULT_PORT, open_browser: bool = True):
     engine = FocusEngine(data_dir=SCRIPT_DIR)
-    engine.load_initial_files()
     generate_interactive_dashboard(engine.metrics, engine.recent_events)
     engine.print_terminal_summary()
 
@@ -3310,8 +3326,7 @@ def main():
 
     if args.cli_only:
         engine = FocusEngine(data_dir=SCRIPT_DIR)
-        engine.load_initial_files()
-        generate_interactive_dashboard(engine.metrics, engine.recent_events)
+        engine.load_initial_files(generate_report=False)
         engine.print_terminal_summary()
         print("[SUCCESS] Pipeline completed successfully.")
         return

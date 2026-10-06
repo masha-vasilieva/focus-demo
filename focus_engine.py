@@ -1480,14 +1480,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             --text-muted: #677d94;
         }}
 
-        * {{
+        *, *::before, *::after {{
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: var(--font-sans);
         }}
 
         body {{
+            font-family: var(--font-sans);
             background-color: var(--bg-ground);
             background-image: 
                 linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
@@ -1501,11 +1501,21 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             transition: background-color 0.2s ease, color 0.2s ease;
         }}
 
-        /* Blueprint Architectural Typography */
-        h1, h2, h3, h4, th, .display-font, .stat-number, .stat-index, .spend-card-label {{
+        button, input, select, textarea {{
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+        }}
+
+        button * {{
+            font-family: inherit;
+        }}
+
+        /* Blueprint Architectural Typography - High-Impact Condensed Grotesque */
+        h1, h2, h3, h4, th, .display-font, .stat-number, .spend-card-label {{
             font-family: var(--font-display);
             text-transform: uppercase;
-            letter-spacing: -0.01em;
+            letter-spacing: 0.02em;
         }}
 
         .telemetry-num,
@@ -1532,6 +1542,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            font-family: var(--font-mono);
             font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.1em;
@@ -1759,10 +1770,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: transparent;
             border: 1px solid transparent;
             color: var(--text-secondary);
-            padding: 4px 9px;
+            padding: 4px 10px;
             border-radius: var(--radius-sm);
-            font-size: 0.74rem;
-            font-weight: 600;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             cursor: pointer;
             transition: all 0.15s ease;
             white-space: nowrap;
@@ -1784,12 +1798,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface);
             border: 1px solid var(--accent-steel-border);
             color: var(--accent-steel);
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: var(--radius-control);
-            font-size: 0.76rem;
+            font-family: var(--font-display);
+            font-size: 0.84rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -1806,12 +1821,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface);
             border: 1px solid var(--border-color);
             color: var(--signal-ember);
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: var(--radius-control);
-            font-size: 0.76rem;
+            font-family: var(--font-display);
+            font-size: 0.84rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -1942,8 +1958,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             gap: 6px;
             font-family: var(--font-mono);
             font-size: 0.72rem;
+            font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
 
         /* Demo Generator Card */
@@ -1995,6 +2013,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.06em;
+            text-transform: uppercase;
             color: var(--text-primary);
         }}
 
@@ -2040,6 +2059,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-weight: 700;
             color: var(--accent-steel);
             letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
 
         .gen-box-badge {{
@@ -2051,6 +2071,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border: 1px solid var(--accent-sprout-border);
             padding: 2px 6px;
             border-radius: var(--radius-sm);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }}
 
         .gen-box-title {{
@@ -2059,6 +2081,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: 0.04em;
+            text-transform: uppercase;
         }}
 
         .gen-box-desc {{
@@ -2121,6 +2144,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
 
         .gen-preset-buttons {{
@@ -2159,8 +2183,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .preset-text strong {{
-            font-size: 0.78rem;
+            font-family: var(--font-display);
+            font-size: 0.86rem;
             font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
             color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
@@ -2342,7 +2369,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-size: 0.95rem;
             font-weight: 700;
             font-family: var(--font-display);
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
             color: var(--text-primary);
         }}
 
@@ -2419,14 +2447,17 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .btn-subtle {{
-            font-size: 0.68rem;
+            font-family: var(--font-display);
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
             color: var(--text-muted);
             background: transparent;
             border: 1px solid var(--border-subtle);
             cursor: pointer;
-            padding: 2px 7px;
+            padding: 3px 8px;
             border-radius: var(--radius-sm);
-            font-family: var(--font-mono);
             transition: all 0.15s ease;
         }}
         .btn-subtle:hover {{
@@ -2507,10 +2538,12 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .stat-index {{
-            font-size: 0.74rem;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--text-muted);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }}
 
         .stat-tag {{
@@ -2522,6 +2555,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-sm);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }}
         .stat-tag.invariant {{
             color: var(--accent-sprout);
@@ -2641,12 +2676,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: var(--radius-control);
-            font-size: 0.76rem;
+            font-family: var(--font-display);
+            font-size: 0.82rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
             cursor: pointer;
             text-decoration: none;
             display: inline-flex;
@@ -2690,6 +2726,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-radius: var(--radius-control);
             padding: 8px 12px 8px 34px;
             color: var(--text-primary);
+            font-family: var(--font-sans);
             font-size: 0.82rem;
             outline: none;
             transition: border-color 0.15s ease;
@@ -2710,6 +2747,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-radius: var(--radius-control);
             padding: 8px 12px;
             color: var(--text-primary);
+            font-family: var(--font-sans);
             font-size: 0.8rem;
             outline: none;
             cursor: pointer;
@@ -2738,8 +2776,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             cursor: pointer;
             white-space: nowrap;
             user-select: none;
-            font-size: 0.74rem;
-            letter-spacing: 0.04em;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }}
         th:hover {{
             color: var(--accent-steel);
@@ -2761,9 +2800,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             align-items: center;
             padding: 2px 7px;
             border-radius: var(--radius-sm);
-            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }}
         .prov-aws {{ background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.28); }}
         .prov-azure {{ background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }}
@@ -2778,6 +2819,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             font-size: 0.68rem;
             font-weight: 700;
             font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }}
         .curr-usd {{ background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }}
         .curr-eur {{ background: var(--accent-phosphor-subtle); color: var(--accent-phosphor); border: 1px solid var(--accent-phosphor-border); }}
@@ -2786,8 +2829,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: inline-block;
             padding: 2px 6px;
             border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
             font-size: 0.68rem;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }}
         .cat-usage {{ background: var(--accent-steel-subtle); color: var(--accent-steel); border: 1px solid var(--accent-steel-border); }}
         .cat-credit {{ background: var(--accent-sprout-subtle); color: var(--accent-sprout); border: 1px solid var(--accent-sprout-border); }}
@@ -2818,10 +2864,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface-elevated);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: var(--radius-sm);
-            font-size: 0.76rem;
-            font-family: var(--font-mono);
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
             cursor: pointer;
             transition: all 0.15s ease;
         }}
@@ -3261,7 +3310,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         <div class="pagination-bar">
             <div>
-                Showing <span id="startIdx">0</span> to <span id="endIdx">0</span> of <span id="totalFilterCount">0</span> records
+                Showing <span id="startIdx" class="mono-val">0</span> to <span id="endIdx" class="mono-val">0</span> of <span id="totalFilterCount" class="mono-val">0</span> records
             </div>
             <div class="page-buttons" id="paginationControls"></div>
         </div>

@@ -2642,19 +2642,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <span>Pruned <strong id="card-pruned-count" class="mono-val" style="color: var(--accent-sprout);">{pruned_rows_formatted}</strong> idle $0.00 micro-metered rows</span>
             </div>
         </div>
-
-        <div class="blueprint-card stat-card">
-            <div class="card-crosshair tl">+</div>
-            <div class="card-crosshair tr">+</div>
-            <div class="stat-top">
-                <span class="stat-index">04 // DUAL-CURRENCY INVARIANCE</span>
-                <span class="stat-tag invariant">ENFORCED</span>
-            </div>
-            <div class="stat-number invariant">0.000000% Δ</div>
-            <div class="stat-subtext">
-                <span>Zero arithmetic drift across currency boundaries</span>
-            </div>
-        </div>
     </div>
 
     <!-- Infrastructure Spend Yield (Charts) -->
@@ -2663,7 +2650,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             <div class="panel-header">
                 <span class="panel-title">
                     <span class="crosshair-marker">+</span>
-                    05 // USD INFRASTRUCTURE SPEND YIELD
+                    04 // USD INFRASTRUCTURE SPEND YIELD
                 </span>
                 <span class="curr-pill curr-usd">USD</span>
             </div>
@@ -2674,7 +2661,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             <div class="panel-header">
                 <span class="panel-title">
                     <span class="crosshair-marker">+</span>
-                    06 // EUR INFRASTRUCTURE SPEND YIELD
+                    05 // EUR INFRASTRUCTURE SPEND YIELD
                 </span>
                 <span class="curr-pill curr-eur">EUR</span>
             </div>
@@ -2687,7 +2674,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <div class="panel-header">
             <span class="panel-title">
                 <span class="crosshair-marker">+</span>
-                07 // NORMALIZED FOCUS 1.2 TELEMETRY LEDGER
+                06 // NORMALIZED FOCUS 1.2 TELEMETRY LEDGER
             </span>
             <div class="table-actions">
                 <a href="/unified_focus.parquet" class="btn-action" download title="Download full normalized dataset as Apache Parquet">

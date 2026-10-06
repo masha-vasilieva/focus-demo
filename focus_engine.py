@@ -75,10 +75,16 @@ class DynamicNormalizer:
             return "UNKNOWN"
 
         # 1. Archives: Tar and Zip
-        if tarfile.is_tarfile(filepath):
-            return "ARCHIVE_TAR"
-        if zipfile.is_zipfile(filepath):
-            return "ARCHIVE_ZIP"
+        try:
+            if tarfile.is_tarfile(filepath):
+                return "ARCHIVE_TAR"
+        except Exception:
+            pass
+        try:
+            if zipfile.is_zipfile(filepath):
+                return "ARCHIVE_ZIP"
+        except Exception:
+            pass
 
         # 2. Parquet
         try:
@@ -94,9 +100,9 @@ class DynamicNormalizer:
                 cols = [r[0].lower() for r in self.con.execute(f"DESCRIBE SELECT * FROM '{filepath}'").fetchall()]
                 if any(k in cols for k in ["x_skumetersubcategory", "x_invoiceid", "x_billedcostinusd", "x_resourcegroupname"]):
                     return "PARQUET_AZURE"
-                if any(k in cols for k in ["availabilityzone", "x_discounts", "capacityreservationid", "x_operation"]):
+                if any(k in cols for k in ["x_discounts", "x_operation", "x_servicecode"]):
                     return "PARQUET_AWS"
-                if "billedcost" in cols and "billingcurrency" in cols:
+                if "billedcost" in cols and ("billingcurrency" in cols or "providername" in cols):
                     return "PARQUET_FOCUS"
                 return "PARQUET_GENERIC"
         except Exception as e:
@@ -121,9 +127,9 @@ class DynamicNormalizer:
                 first_line = f.readline().lower()
             if "billing account" in first_line and ("cost" in first_line or "service description" in first_line or "unrounded cost" in first_line):
                 return "CSV_GCP"
-            if "billedcost" in first_line and "billingaccountid" in first_line:
+            if "billedcost" in first_line and "billingaccountid" in first_line and "x_projectid" in first_line:
                 return "CSV_NEBIUS"
-            if "billedcost" in first_line and "billingcurrency" in first_line:
+            if "billedcost" in first_line and ("billingcurrency" in first_line or "providername" in first_line or "billingaccountid" in first_line):
                 return "CSV_FOCUS"
         except Exception:
             pass
@@ -183,7 +189,22 @@ class DynamicNormalizer:
             return
 
         t_name = f"staging_{uuid.uuid4().hex[:12]}"
+        try:
+            self._normalize_staged_file(detected, filepath, filename, t_name)
+        except Exception as e:
+            warn_msg = f"Failed to ingest '{filename}': {e}"
+            self.log("QA Tester", f"[WARN] {warn_msg}")
+            self.warnings.append(warn_msg)
+            self.ingestion_events.append({
+                "filename": filename,
+                "provider": "Unknown",
+                "currency": "-",
+                "rows": 0,
+                "status": "error",
+                "message": f"Failed to normalize {filename}: {e}"
+            })
 
+    def _normalize_staged_file(self, detected: str, filepath: str, filename: str, t_name: str):
         # Execute normalization and immediately materialize into table
         if detected == "PARQUET_AWS":
             self.con.execute(f"""
@@ -223,8 +244,14 @@ class DynamicNormalizer:
                 ConsumedUnit,
                 TRY_CAST(PricingQuantity AS DOUBLE) AS PricingQuantity,
                 PricingUnit,
-                TRY_CAST(BilledCost AS DOUBLE) AS BilledCost,
-                TRY_CAST(EffectiveCost AS DOUBLE) AS EffectiveCost,
+                CASE 
+                    WHEN ChargeCategory = 'Credit' AND (ChargeDescription ILIKE '%free tier%' OR SkuDescription ILIKE '%free tier%') THEN 0.0 
+                    ELSE TRY_CAST(BilledCost AS DOUBLE) 
+                END AS BilledCost,
+                CASE 
+                    WHEN ChargeCategory = 'Credit' AND (ChargeDescription ILIKE '%free tier%' OR SkuDescription ILIKE '%free tier%') THEN 0.0 
+                    ELSE TRY_CAST(EffectiveCost AS DOUBLE) 
+                END AS EffectiveCost,
                 TRY_CAST(ListCost AS DOUBLE) AS ListCost,
                 TRY_CAST(ContractedCost AS DOUBLE) AS ContractedCost,
                 TRY_CAST(ListUnitPrice AS DOUBLE) AS ListUnitPrice,
@@ -330,70 +357,138 @@ class DynamicNormalizer:
             })
 
         elif detected in ("CSV_NEBIUS", "CSV_FOCUS"):
+            # Introspect CSV headers dynamically to support both full FOCUS schema and exported subsets
+            try:
+                csv_cols = [r[0] for r in self.con.execute(f"DESCRIBE SELECT * FROM read_csv('{filepath}', nullstr=['NULL', 'nan', ''], all_varchar=true) LIMIT 1").fetchall()]
+            except Exception:
+                csv_cols = [r[0] for r in self.con.execute(f"DESCRIBE SELECT * FROM read_csv_auto('{filepath}') LIMIT 1").fetchall()]
+            csv_map = {c.lower(): c for c in csv_cols}
+
+            def _csv_col(col_name, target_type="VARCHAR", default_expr="NULL"):
+                k = col_name.lower()
+                if k in csv_map:
+                    raw_col = f'"{csv_map[k]}"'
+                    if target_type == "DOUBLE":
+                        return f"TRY_CAST({raw_col} AS DOUBLE) AS {col_name}"
+                    elif target_type == "TIMESTAMP":
+                        return f"TRY_CAST({raw_col} AS TIMESTAMP) AS {col_name}"
+                    else:
+                        return f"CAST({raw_col} AS VARCHAR) AS {col_name}"
+                if default_expr == "NULL":
+                    if target_type == "DOUBLE":
+                        return f"NULL::DOUBLE AS {col_name}"
+                    elif target_type == "TIMESTAMP":
+                        return f"NULL::TIMESTAMP AS {col_name}"
+                    else:
+                        return f"NULL::VARCHAR AS {col_name}"
+                return f"{default_expr} AS {col_name}"
+
+            prov_expr = _csv_col('ProviderName', 'VARCHAR', "'Nebius B.V.'" if detected == "CSV_NEBIUS" else "'FOCUS Dataset'")
+            if 'providername' not in csv_map and 'provider' in csv_map:
+                prov_expr = f'CAST("{csv_map["provider"]}" AS VARCHAR) AS ProviderName'
+
+            sub_acc_id_expr = _csv_col('SubAccountId', 'VARCHAR')
+            if 'subaccountid' not in csv_map and 'x_projectid' in csv_map:
+                sub_acc_id_expr = f'CAST("{csv_map["x_projectid"]}" AS VARCHAR) AS SubAccountId'
+            elif 'subaccountid' not in csv_map and 'subaccount' in csv_map:
+                sub_acc_id_expr = f'CAST("{csv_map["subaccount"]}" AS VARCHAR) AS SubAccountId'
+
+            sub_acc_name_expr = _csv_col('SubAccountName', 'VARCHAR')
+            if 'subaccountname' not in csv_map and 'x_projectname' in csv_map:
+                sub_acc_name_expr = f'CAST("{csv_map["x_projectname"]}" AS VARCHAR) AS SubAccountName'
+            elif 'subaccountname' not in csv_map and 'subaccount' in csv_map:
+                sub_acc_name_expr = f'CAST("{csv_map["subaccount"]}" AS VARCHAR) AS SubAccountName'
+
+            chg_start_expr = _csv_col('ChargePeriodStart', 'TIMESTAMP')
+            if 'chargeperiodstart' not in csv_map and 'periodstart' in csv_map:
+                chg_start_expr = f'TRY_CAST("{csv_map["periodstart"]}" AS TIMESTAMP) AS ChargePeriodStart'
+
+            chg_end_expr = _csv_col('ChargePeriodEnd', 'TIMESTAMP')
+            if 'chargeperiodend' not in csv_map and 'periodend' in csv_map:
+                chg_end_expr = f'TRY_CAST("{csv_map["periodend"]}" AS TIMESTAMP) AS ChargePeriodEnd'
+
+            curr_expr = _csv_col('BillingCurrency', 'VARCHAR', "'USD'")
+            if 'billingcurrency' not in csv_map and 'currency' in csv_map:
+                curr_expr = f'COALESCE("{csv_map["currency"]}", \'USD\') AS BillingCurrency'
+
+            pricing_curr_expr = _csv_col('PricingCurrency', 'VARCHAR', "'USD'")
+            if 'pricingcurrency' not in csv_map:
+                pricing_curr_expr = curr_expr.rsplit(' AS ', 1)[0] + ' AS PricingCurrency'
+
+            billed_cost_expr = _csv_col('BilledCost', 'DOUBLE', '0.0::DOUBLE')
+            effective_cost_expr = _csv_col('EffectiveCost', 'DOUBLE', '0.0::DOUBLE')
+            pricing_eff_cost_expr = _csv_col('PricingCurrencyEffectiveCost', 'DOUBLE', '0.0::DOUBLE')
+            if 'effectivecost' not in csv_map and 'billedcost' in csv_map:
+                effective_cost_expr = f'TRY_CAST("{csv_map["billedcost"]}" AS DOUBLE) AS EffectiveCost'
+            if 'billedcost' not in csv_map and 'effectivecost' in csv_map:
+                billed_cost_expr = f'TRY_CAST("{csv_map["effectivecost"]}" AS DOUBLE) AS BilledCost'
+            if 'pricingcurrencyeffectivecost' not in csv_map:
+                pricing_eff_cost_expr = effective_cost_expr.rsplit(' AS ', 1)[0] + ' AS PricingCurrencyEffectiveCost'
+
             self.con.execute(f"""
             CREATE OR REPLACE TABLE {t_name} AS
             SELECT 
-                COALESCE(ProviderName, 'Nebius') AS ProviderName,
-                PublisherName,
-                InvoiceIssuerName,
-                NULL AS InvoiceId,
-                BillingAccountId,
-                BillingAccountName,
-                BillingAccountType,
-                x_ProjectId AS SubAccountId,
-                x_ProjectName AS SubAccountName,
-                NULL AS SubAccountType,
-                ServiceCategory,
-                ServiceName,
-                NULL AS ServiceSubcategory,
-                SkuId,
-                ChargeDescription AS SkuDescription,
-                SkuPriceId,
-                ResourceId,
-                ResourceName,
-                ResourceType,
-                RegionId,
-                RegionName,
-                NULL AS AvailabilityZone,
-                ChargeCategory,
-                CAST(ChargeClass AS VARCHAR) AS ChargeClass,
-                ChargeDescription,
-                ChargeFrequency,
-                BillingPeriodStart::TIMESTAMP AS BillingPeriodStart,
-                BillingPeriodEnd::TIMESTAMP AS BillingPeriodEnd,
-                ChargePeriodStart::TIMESTAMP AS ChargePeriodStart,
-                ChargePeriodEnd::TIMESTAMP AS ChargePeriodEnd,
-                TRY_CAST(ConsumedQuantity AS DOUBLE) AS ConsumedQuantity,
-                ConsumedUnit,
-                TRY_CAST(PricingQuantity AS DOUBLE) AS PricingQuantity,
-                PricingUnit,
-                TRY_CAST(BilledCost AS DOUBLE) AS BilledCost,
-                TRY_CAST(EffectiveCost AS DOUBLE) AS EffectiveCost,
-                TRY_CAST(ListCost AS DOUBLE) AS ListCost,
-                TRY_CAST(ContractedCost AS DOUBLE) AS ContractedCost,
-                TRY_CAST(ListUnitPrice AS DOUBLE) AS ListUnitPrice,
-                TRY_CAST(ContractedUnitPrice AS DOUBLE) AS ContractedUnitPrice,
-                BillingCurrency,
-                PricingCurrency,
-                TRY_CAST(PricingCurrencyEffectiveCost AS DOUBLE) AS PricingCurrencyEffectiveCost,
-                TRY_CAST(PricingCurrencyListUnitPrice AS DOUBLE) AS PricingCurrencyListUnitPrice,
-                TRY_CAST(PricingCurrencyContractedUnitPrice AS DOUBLE) AS PricingCurrencyContractedUnitPrice,
-                CommitmentDiscountCategory,
-                CommitmentDiscountId,
-                CommitmentDiscountName,
-                TRY_CAST(CommitmentDiscountQuantity AS DOUBLE) AS CommitmentDiscountQuantity,
-                CommitmentDiscountStatus,
-                CommitmentDiscountType,
-                CommitmentDiscountUnit,
-                NULL AS CapacityReservationId,
-                NULL AS CapacityReservationStatus,
-                CAST(Tags AS VARCHAR) AS Tags
-            FROM read_csv('{filepath}', nullstr=['NULL', 'nan', '']);
+                {prov_expr},
+                {_csv_col('PublisherName')},
+                {_csv_col('InvoiceIssuerName')},
+                {_csv_col('InvoiceId')},
+                {_csv_col('BillingAccountId')},
+                {_csv_col('BillingAccountName')},
+                {_csv_col('BillingAccountType')},
+                {sub_acc_id_expr},
+                {sub_acc_name_expr},
+                {_csv_col('SubAccountType')},
+                {_csv_col('ServiceCategory')},
+                {_csv_col('ServiceName')},
+                {_csv_col('ServiceSubcategory')},
+                {_csv_col('SkuId')},
+                {_csv_col('SkuDescription')},
+                {_csv_col('SkuPriceId')},
+                {_csv_col('ResourceId')},
+                {_csv_col('ResourceName')},
+                {_csv_col('ResourceType')},
+                {_csv_col('RegionId')},
+                {_csv_col('RegionName')},
+                {_csv_col('AvailabilityZone')},
+                {_csv_col('ChargeCategory', default_expr="'Usage'")},
+                {_csv_col('ChargeClass')},
+                {_csv_col('ChargeDescription')},
+                {_csv_col('ChargeFrequency', default_expr="'Usage-Based'")},
+                {_csv_col('BillingPeriodStart', 'TIMESTAMP')},
+                {_csv_col('BillingPeriodEnd', 'TIMESTAMP')},
+                {chg_start_expr},
+                {chg_end_expr},
+                {_csv_col('ConsumedQuantity', 'DOUBLE')},
+                {_csv_col('ConsumedUnit')},
+                {_csv_col('PricingQuantity', 'DOUBLE')},
+                {_csv_col('PricingUnit')},
+                {billed_cost_expr},
+                {effective_cost_expr},
+                {_csv_col('ListCost', 'DOUBLE')},
+                {_csv_col('ContractedCost', 'DOUBLE')},
+                {_csv_col('ListUnitPrice', 'DOUBLE')},
+                {_csv_col('ContractedUnitPrice', 'DOUBLE')},
+                {curr_expr},
+                {pricing_curr_expr},
+                {pricing_eff_cost_expr},
+                {_csv_col('PricingCurrencyListUnitPrice', 'DOUBLE')},
+                {_csv_col('PricingCurrencyContractedUnitPrice', 'DOUBLE')},
+                {_csv_col('CommitmentDiscountCategory')},
+                {_csv_col('CommitmentDiscountId')},
+                {_csv_col('CommitmentDiscountName')},
+                {_csv_col('CommitmentDiscountQuantity', 'DOUBLE')},
+                {_csv_col('CommitmentDiscountStatus')},
+                {_csv_col('CommitmentDiscountType')},
+                {_csv_col('CommitmentDiscountUnit')},
+                {_csv_col('CapacityReservationId')},
+                {_csv_col('CapacityReservationStatus')},
+                {_csv_col('Tags', default_expr="'{}'")}
+            FROM read_csv_auto('{filepath}');
             """)
             self.staged_tables.append(t_name)
             cnt = self.con.execute(f"SELECT count(*) FROM {t_name}").fetchone()[0]
             p_val = self.con.execute(f"SELECT DISTINCT ProviderName, BillingCurrency FROM {t_name} WHERE ProviderName IS NOT NULL LIMIT 1").fetchone()
-            prov_name = p_val[0] if p_val else "Nebius"
+            prov_name = p_val[0] if p_val else ("Nebius B.V." if detected == "CSV_NEBIUS" else "FOCUS Dataset")
             curr_name = p_val[1] if p_val else "USD"
             self.ingestion_events.append({
                 "filename": filename,
@@ -529,8 +624,14 @@ class DynamicNormalizer:
                 "Usage unit" AS ConsumedUnit,
                 TRY_CAST("Usage amount" AS DOUBLE) AS PricingQuantity,
                 "Usage unit" AS PricingUnit,
-                TRY_CAST({cost_col} AS DOUBLE) AS BilledCost,
-                TRY_CAST({unrounded_col} AS DOUBLE) AS EffectiveCost,
+                CASE 
+                    WHEN "Credit type" IS NOT NULL AND ("Credit type" ILIKE '%promot%' OR "Credit type" ILIKE '%trial%') THEN 0.0
+                    ELSE TRY_CAST({cost_col} AS DOUBLE)
+                END AS BilledCost,
+                CASE 
+                    WHEN "Credit type" IS NOT NULL AND ("Credit type" ILIKE '%promot%' OR "Credit type" ILIKE '%trial%') THEN 0.0
+                    ELSE TRY_CAST({unrounded_col} AS DOUBLE)
+                END AS EffectiveCost,
                 CASE 
                     WHEN ("Credit type" IS NULL OR trim("Credit type") = '') THEN TRY_CAST({unrounded_col} AS DOUBLE)
                     ELSE 0.0 
@@ -691,6 +792,19 @@ class FocusEngine:
             "pruned_count": 0
         }
 
+    def _export_parquet(self):
+        try:
+            if os.path.exists(OUTPUT_PARQUET):
+                try:
+                    os.remove(OUTPUT_PARQUET)
+                except Exception:
+                    pass
+            self.con.execute(f"COPY unified_focus TO '{OUTPUT_PARQUET}' (FORMAT PARQUET, COMPRESSION 'ZSTD');")
+            p_rows = self.con.execute(f"SELECT count(*) FROM '{OUTPUT_PARQUET}'").fetchone()[0]
+            self.log("Data Engineer", f"Exported {OUTPUT_PARQUET} ({p_rows} rows).")
+        except Exception as e:
+            self.log("Data Engineer", f"[WARN] Parquet export note: {e}")
+
     def reset(self) -> dict:
         with self.lock:
             self.provider_tables.clear()
@@ -698,7 +812,7 @@ class FocusEngine:
             self.con.execute("DROP TABLE IF EXISTS raw_combined;")
             self.con.execute("DROP TABLE IF EXISTS unified_focus;")
             self._init_empty_schema()
-            self.con.execute(f"COPY unified_focus TO '{OUTPUT_PARQUET}' (FORMAT PARQUET, COMPRESSION 'ZSTD');")
+            self._export_parquet()
             self.metrics = self.get_empty_metrics()
             self.latest_warnings = []
             reset_event = {
@@ -716,34 +830,238 @@ class FocusEngine:
             return self.metrics
 
     def load_demo_preset(self, preset: str = "all") -> dict:
-        """Clears active ledger and ingests the selected demo preset."""
-        preset_map = {
-            "all": [
-                "AWSDemoReport-00001.snappy.parquet",
-                "AZUREpart_0_0001.snappy.parquet",
-                "GCP_cost_table.csv",
-                "NEBIUSnbs.tar.gz",
-                "cloudflare.json"
-            ],
-            "hyperscalers": [
-                "AWSDemoReport-00001.snappy.parquet",
-                "AZUREpart_0_0001.snappy.parquet",
-                "GCP_cost_table.csv"
-            ],
-            "ai_infra": [
-                "NEBIUSnbs.tar.gz",
-                "cloudflare.json"
-            ],
-            "aws_only": [
-                "AWSDemoReport-00001.snappy.parquet"
-            ],
-            "europe_only": [
-                "AZUREpart_0_0001.snappy.parquet",
-                "GCP_cost_table.csv"
-            ]
+        """Clears active ledger and dynamically synthesizes randomized FOCUS 1.2 multi-cloud telemetry."""
+        return self.generate_synthetic_telemetry(preset)
+
+    def generate_synthetic_telemetry(self, preset: str = "all") -> dict:
+        """Dynamically generates randomized, realistic FOCUS 1.2 multi-cloud spend telemetry.
+        Produces varying line item counts, services, and realistic USD/EUR spend amounts
+        on every invocation while preserving strict 0.000000% dual-currency invariance.
+        """
+        import random, time
+        from datetime import timedelta
+
+        # Dynamic microsecond seed guarantees unique dataset on every run
+        rnd = random.Random(time.time_ns())
+
+        preset_clouds = {
+            "all": ["AWS", "Microsoft Azure", "Google Cloud", "Nebius B.V.", "Cloudflare"],
+            "hyperscalers": ["AWS", "Microsoft Azure", "Google Cloud"],
+            "ai_infra": ["Nebius B.V.", "Cloudflare"],
+            "aws_only": ["AWS"],
+            "europe_only": ["Microsoft Azure", "Google Cloud"]
         }
-        files_to_load = preset_map.get(preset, preset_map["all"])
-        target_paths = [os.path.join(self.data_dir, f) for f in files_to_load if os.path.exists(os.path.join(self.data_dir, f))]
+        selected_clouds = preset_clouds.get(preset, preset_clouds["all"])
+
+        preset_labels = {
+            "all": "Complete Multi-Cloud Suite (AWS, Azure, GCP, Cloudflare, Nebius)",
+            "hyperscalers": "Hyperscalers Suite (AWS, Azure, GCP)",
+            "ai_infra": "AI & Edge Infrastructure (Nebius, Cloudflare)",
+            "aws_only": "AWS Cost & Usage Report (USD)",
+            "europe_only": "European Cloud Telemetry (Azure, GCP - EUR)"
+        }
+        label = preset_labels.get(preset, preset.title())
+
+        # Target active row counts per provider (different on every click)
+        base_row_ranges = {
+            "AWS": (35, 65) if preset != "aws_only" else (85, 140),
+            "Microsoft Azure": (20, 42) if preset != "europe_only" else (45, 80),
+            "Google Cloud": (18, 38) if preset != "europe_only" else (40, 75),
+            "Nebius B.V.": (15, 30) if preset != "ai_infra" else (35, 65),
+            "Cloudflare": (12, 24) if preset != "ai_infra" else (28, 55),
+        }
+
+        cloud_catalog = {
+            "AWS": {
+                "publisher": "Amazon Web Services",
+                "issuer": "Amazon Web Services, Inc.",
+                "account_id": "941829410582",
+                "account_name": "AWS-Enterprise-Master",
+                "currency": "USD",
+                "sub_accounts": [
+                    ("109283746501", "Production-US-East"),
+                    ("294810394857", "Core-Platform-Services"),
+                    ("583920194820", "Data-Pipelines-ETL"),
+                    ("918273645102", "ML-Inference-Fleet"),
+                    ("394820194857", "Staging-Workloads"),
+                ],
+                "regions": [
+                    ("us-east-1", "US East (N. Virginia)", "us-east-1a"),
+                    ("us-west-2", "US West (Oregon)", "us-west-2b"),
+                    ("eu-west-1", "Europe (Ireland)", "eu-west-1a"),
+                ],
+                "services": [
+                    ("Compute", "Amazon Elastic Compute Cloud", "Virtual Machines", [
+                        ("c6i.2xlarge", "Compute-Optimized c6i.2xlarge Linux Instance", "Hrs", 0.34, 1.2, 48.0),
+                        ("m6i.4xlarge", "General Purpose m6i.4xlarge Linux Instance", "Hrs", 0.768, 2.0, 95.0),
+                        ("g5.2xlarge", "GPU Accelerated Workload Instance (A10G)", "Hrs", 1.212, 3.5, 120.0),
+                        ("gp3-storage", "EBS Provisioned IOPS gp3 Storage Volume", "GB-Mo", 0.08, 0.5, 35.0),
+                        ("nat-gateway", "VPC NAT Gateway Data Processing & Usage", "Hrs", 0.045, 0.2, 18.0),
+                    ]),
+                    ("Storage", "Amazon Simple Storage Service", "Object Storage", [
+                        ("s3-standard", "S3 Standard Storage Tier (First 50 TB)", "GB-Mo", 0.023, 0.1, 15.0),
+                        ("s3-glacier", "S3 Glacier Flexible Retrieval Storage", "GB-Mo", 0.0036, 0.05, 8.0),
+                        ("s3-api-put", "S3 API Tier-1 Requests (PUT/LIST/POST)", "Requests", 0.005, 0.01, 4.5),
+                    ]),
+                    ("Networking", "Amazon Virtual Private Cloud", "Network Infrastructure", [
+                        ("vpc-ipv4", "In-use Public IPv4 Address", "Hrs", 0.005, 0.1, 6.0),
+                        ("transit-gw", "Transit Gateway Data Processing Attachment", "GB", 0.02, 0.2, 12.0),
+                        ("vpc-flowlogs", "VPC Flow Logs Telemetry Data Ingestion", "GB", 0.25, 0.05, 5.0),
+                    ]),
+                    ("Databases", "Amazon Relational Database Service", "Managed SQL", [
+                        ("aurora-pg-xl", "Aurora PostgreSQL Multi-AZ db.r6g.xlarge", "Hrs", 0.52, 1.5, 65.0),
+                        ("rds-storage", "Aurora Cluster Provisioned Storage", "GB-Mo", 0.10, 0.3, 20.0),
+                    ]),
+                    ("Security", "AWS Key Management Service", "Encryption Keys", [
+                        ("kms-cmk", "Customer Managed Cryptographic Key", "Keys-Mo", 1.00, 1.0, 5.0),
+                        ("kms-api", "Cryptographic API Operations (Encrypt/Decrypt)", "Requests", 0.03, 0.02, 2.5),
+                    ])
+                ]
+            },
+            "Microsoft Azure": {
+                "publisher": "Microsoft",
+                "issuer": "Microsoft Ireland Operations Limited",
+                "account_id": "sub-9182-az-prod-eu",
+                "account_name": "Azure-Corporate-Enterprise",
+                "currency": "EUR",
+                "sub_accounts": [
+                    ("sub-core-eu-01", "Enterprise-EU-Core"),
+                    ("sub-analytics-02", "Analytics-Dev-Workspaces"),
+                    ("sub-security-03", "Security-Infra-Monitoring"),
+                    ("sub-platform-04", "Platform-Engineering-SRE"),
+                ],
+                "regions": [
+                    ("westeurope", "West Europe (Netherlands)", "westeurope-1"),
+                    ("northeurope", "North Europe (Ireland)", "northeurope-1"),
+                    ("germanywestcentral", "Germany West Central (Frankfurt)", "germanywestcentral-1"),
+                ],
+                "services": [
+                    ("Compute", "Virtual Machines", "General Purpose VM", [
+                        ("D8s_v5", "Standard_D8s_v5 (8 vCPUs, 32 GiB RAM)", "Hours", 0.384, 1.2, 55.0),
+                        ("E16s_v5", "Standard_E16s_v5 Memory Optimized VM", "Hours", 0.842, 2.5, 88.0),
+                        ("NV6ads_A10", "Standard_NV6ads_A10_v5 AI Inference VM", "Hours", 1.15, 3.0, 110.0),
+                    ]),
+                    ("Storage", "Storage Accounts", "Blob & Disk Storage", [
+                        ("prem-ssd-p30", "Premium SSD Managed Disk P30 (1024 GiB)", "GiB/Month", 0.125, 0.8, 32.0),
+                        ("hot-blob-lrs", "Standard Hot Blob Storage LRS", "GiB/Month", 0.0184, 0.1, 14.0),
+                        ("cold-archive", "Standard Cold Archive Storage GRS", "GiB/Month", 0.002, 0.02, 5.0),
+                    ]),
+                    ("Containers", "Azure Kubernetes Service", "Kubernetes Orchestration", [
+                        ("aks-cluster-sla", "AKS Uptime SLA Managed Control Plane", "Hours", 0.092, 0.5, 15.0),
+                        ("aks-nodes", "AKS Node Pool Virtual Compute Capacity", "Hours", 0.45, 1.5, 45.0),
+                    ]),
+                    ("Databases", "Azure Cosmos DB", "NoSQL Database", [
+                        ("cosmos-ru", "Cosmos DB Multi-Region Serverless RU/s", "100 RU/s", 0.00025, 0.3, 22.0),
+                        ("cosmos-storage", "Cosmos DB Document Analytical Storage", "GB", 0.23, 0.2, 12.0),
+                    ])
+                ]
+            },
+            "Google Cloud": {
+                "publisher": "Google LLC",
+                "issuer": "Google Ireland Limited",
+                "account_id": "011111-222222-333333",
+                "account_name": "GCP Core Production Organisation",
+                "currency": "EUR",
+                "sub_accounts": [
+                    ("project-core-prod", "production-mesh-core"),
+                    ("project-bigquery-ml", "bigquery-analytical-engine"),
+                    ("project-infra-mesh", "cloud-networking-backbone"),
+                    ("project-dev-sandbox", "developer-sandboxes-eu"),
+                ],
+                "regions": [
+                    ("europe-west1", "Belgium (europe-west1)", "europe-west1-b"),
+                    ("europe-west3", "Frankfurt (europe-west3)", "europe-west3-a"),
+                    ("europe-west4", "Eemshaven (europe-west4)", "europe-west4-a"),
+                ],
+                "services": [
+                    ("Compute", "Compute Engine", "Virtual Machines & Accelerators", [
+                        ("t4-gpu", "Nvidia Tesla T4 GPU attached to N1 VM", "hour", 0.32, 1.0, 42.0),
+                        ("n2d-core", "N2D Predefined Instance Core (AMD EPYC)", "hour", 0.034, 0.4, 25.0),
+                        ("n2d-ram", "N2D Predefined Instance RAM (AMD EPYC)", "gibibyte hour", 0.0045, 0.2, 15.0),
+                    ]),
+                    ("Storage", "Cloud Storage", "Object Storage", [
+                        ("gcs-standard", "Standard Storage Multi-Region (EU)", "gibibyte month", 0.023, 0.1, 16.0),
+                        ("gcs-nearline", "Nearline Storage Archive (europe-west3)", "gibibyte month", 0.011, 0.05, 8.0),
+                    ]),
+                    ("Analytics", "BigQuery", "Serverless Data Warehouse", [
+                        ("bq-analysis", "BigQuery Analysis On-Demand Query Processing", "gibibyte", 0.0055, 0.2, 38.0),
+                        ("bq-storage", "BigQuery Active Table Storage (EU)", "gibibyte month", 0.018, 0.1, 12.0),
+                    ]),
+                    ("Containers", "Google Kubernetes Engine", "Managed Kubernetes", [
+                        ("gke-management", "GKE Standard Cluster Management Fee", "hour", 0.092, 0.5, 18.0),
+                        ("gke-autopilot", "GKE Autopilot Workload Pod Compute Capacity", "hour", 0.35, 1.2, 35.0),
+                    ])
+                ]
+            },
+            "Nebius B.V.": {
+                "publisher": "Nebius B.V.",
+                "issuer": "Nebius B.V. Amsterdam",
+                "account_id": "fhm29dk01948nebius",
+                "account_name": "Nebius AI Foundation Lab",
+                "currency": "USD",
+                "sub_accounts": [
+                    ("nebius-llm-pretraining", "LLM-Foundation-Cluster-01"),
+                    ("nebius-inference-fleet", "Realtime-vLLM-Production"),
+                    ("nebius-data-prep", "Multi-Modal-Data-Ingestion"),
+                ],
+                "regions": [
+                    ("eu-north1", "Mäntsälä Data Center (eu-north1)", "eu-north1-a"),
+                    ("eu-west1", "Paris Fabric (eu-west1)", "eu-west1-b"),
+                ],
+                "services": [
+                    ("Compute Cloud", "Compute Cloud", "AI High-Performance Accelerated Compute", [
+                        ("h100-sxm5-8x", "Nvidia H100 80GB SXM5 Dedicated 8x GPU Host", "GPU-Hour", 2.85, 5.0, 145.0),
+                        ("epyc-zen4-128c", "AMD EPYC 9654 Zen4 High-Density CPU Node", "Core-Hour", 0.042, 1.5, 48.0),
+                        ("infiniband-roce", "RoCE v2 InfiniBand Fabric Interconnect (3.2 Tbps)", "Gbps-Mo", 0.015, 0.8, 30.0),
+                    ]),
+                    ("Managed Kubernetes", "Managed Kubernetes Service", "AI Workload Orchestration", [
+                        ("nebius-k8s-master", "Nebius Managed Kubernetes Master Node", "Hour", 0.12, 0.4, 18.0),
+                        ("nebius-nvme-scratch", "Local High-IOPS NVMe SSD Scratch Storage", "GB-Mo", 0.18, 0.5, 25.0),
+                    ]),
+                    ("Network Storage", "Network Attached Storage", "Model Weights & Checkpoint Storage", [
+                        ("lustre-fs", "Parallel Lustre Shared File System (Model Checkpoints)", "GB-Mo", 0.22, 1.0, 65.0),
+                    ])
+                ]
+            },
+            "Cloudflare": {
+                "publisher": "Cloudflare, Inc.",
+                "issuer": "Cloudflare, Inc. San Francisco",
+                "account_id": "11112222333344445555666677778888",
+                "account_name": "Global Edge Infrastructure",
+                "currency": "USD",
+                "sub_accounts": [
+                    ("Global-Edge-Fleet", "Production Edge Delivery"),
+                    ("DNS-CDN-Security", "Global Security Perimeter"),
+                    ("AI-Inference-Workers", "Serverless Edge AI Workers"),
+                ],
+                "regions": [
+                    ("global", "Global Anycast Edge Network", "edge-pops-anycast"),
+                ],
+                "services": [
+                    ("Workers AI", "Workers AI", "Serverless GPU Inference", [
+                        ("cf-ai-llama", "Workers AI GPU Inference (Llama-3.1-70B)", "Million Tokens", 0.65, 0.5, 32.0),
+                        ("cf-workers-cpu", "Workers Paid CPU Execution Duration (ms)", "Million Invocations", 0.30, 0.2, 16.0),
+                    ]),
+                    ("R2 Storage", "R2 Object Storage", "Zero-Egress Object Storage", [
+                        ("r2-storage-gb", "R2 Data Storage Active Capacity", "GB-months", 0.015, 0.1, 14.0),
+                        ("r2-class-a", "R2 Storage Class A Operations (PUT/LIST)", "Count", 0.0045, 0.05, 5.0),
+                        ("r2-class-b", "R2 Storage Class B Operations (GET)", "Count", 0.00036, 0.01, 2.5),
+                    ]),
+                    ("Edge Database", "D1 SQL Database", "Distributed Edge SQL", [
+                        ("d1-reads", "D1 Distributed Read Operations", "Million Rows", 0.001, 0.02, 4.0),
+                        ("d1-writes", "D1 Batch Write Operations", "Million Rows", 1.00, 0.1, 8.0),
+                    ]),
+                    ("Security & Network", "Enterprise Edge Network", "Edge Protection", [
+                        ("edge-waf", "Advanced DDoS Mitigation & WAF Rulesets", "Month", 20.0, 1.0, 20.0),
+                        ("magic-transit", "Magic Transit BGP Network Telemetry Flow", "GB", 0.05, 0.2, 12.0),
+                    ])
+                ]
+            }
+        }
+
+        now = datetime.now()
+        period_start = datetime(now.year, now.month, 1)
+        next_month = (period_start + timedelta(days=32)).replace(day=1)
 
         with self.lock:
             self.provider_tables.clear()
@@ -751,38 +1069,149 @@ class FocusEngine:
             self.con.execute("DROP TABLE IF EXISTS raw_combined;")
             self.con.execute("DROP TABLE IF EXISTS unified_focus;")
             self._init_empty_schema()
-            self.metrics = self.get_empty_metrics()
             self.latest_warnings = []
             self.recent_events = []
 
-            if target_paths:
-                self.ingest_files(target_paths, mode="replace", generate_report=True)
+            for cloud in selected_clouds:
+                c_data = cloud_catalog[cloud]
+                curr = c_data["currency"]
+                t_name = f"synth_{cloud.replace(' ', '_').replace('.', '_')}_{uuid.uuid4().hex[:8]}"
 
-            total_norm = self.metrics.get("total_normalized_rows", 0)
-            preset_labels = {
-                "all": "All 5 Multi-Cloud Sample Datasets",
-                "hyperscalers": "Hyperscalers Suite (AWS, Azure, GCP)",
-                "ai_infra": "AI & Edge Infrastructure (Nebius, Cloudflare)",
-                "aws_only": "AWS Cost & Usage Report (USD)",
-                "europe_only": "European Cloud Telemetry (Azure, GCP - EUR)"
-            }
-            label = preset_labels.get(preset, preset.title())
+                min_r, max_r = base_row_ranges.get(cloud, (20, 40))
+                num_active = rnd.randint(min_r, max_r)
+                num_idle = rnd.randint(4, 15)
+
+                rows = []
+                # 1. Active spend rows
+                for i in range(num_active):
+                    svc_cat, svc_name, svc_subcat, skus = rnd.choice(c_data["services"])
+                    sku_id, sku_desc, unit, rate, min_s, max_s = rnd.choice(skus)
+                    sub_id, sub_name = rnd.choice(c_data["sub_accounts"])
+                    reg_id, reg_name, az = rnd.choice(c_data["regions"])
+
+                    cost = round(rnd.uniform(min_s, max_s), 6)
+                    qty = round(cost / max(rate, 0.0001), 3)
+                    days_ago = rnd.randint(0, min(now.day - 1, 27) if now.day > 1 else 0)
+                    chg_start = now - timedelta(days=days_ago, hours=rnd.randint(0, 23))
+                    chg_end = chg_start + timedelta(hours=rnd.choice([1, 24]))
+
+                    tags = f'{{"Environment": "{rnd.choice(["Production", "Staging", "Analytics"])}", "Owner": "{rnd.choice(["CoreTeam", "DataPlatform", "InfraOps"])}"}}'
+
+                    rows.append((
+                        cloud, c_data["publisher"], c_data["issuer"], f"INV-{rnd.randint(100000, 999999)}",
+                        c_data["account_id"], c_data["account_name"], "BillingAccount",
+                        sub_id, sub_name, "SubAccount",
+                        svc_cat, svc_name, svc_subcat,
+                        sku_id, sku_desc, f"price-{sku_id}",
+                        f"res-{uuid.uuid4().hex[:10]}", f"{sku_id}-node-{i+1}", "VirtualResource",
+                        reg_id, reg_name, az,
+                        "Usage", "On-Demand", f"{sku_desc} [Normalized {curr}]", "Usage-Based",
+                        period_start, next_month, chg_start, chg_end,
+                        qty, unit, qty, unit,
+                        cost, cost, cost, cost, rate, rate,
+                        curr, curr, cost, rate, rate,
+                        None, None, None, None, None, None, None,
+                        None, None, tags
+                    ))
+
+                # 2. Idle micro-metered $0.00 rows (for Rule 5 pruning exercise)
+                for j in range(num_idle):
+                    svc_cat, svc_name, svc_subcat, skus = rnd.choice(c_data["services"])
+                    sku_id, sku_desc, unit, rate, min_s, max_s = rnd.choice(skus)
+                    sub_id, sub_name = rnd.choice(c_data["sub_accounts"])
+                    reg_id, reg_name, az = rnd.choice(c_data["regions"])
+                    chg_start = now - timedelta(days=rnd.randint(0, 5), hours=rnd.randint(0, 12))
+                    chg_end = chg_start + timedelta(hours=1)
+                    rows.append((
+                        cloud, c_data["publisher"], c_data["issuer"], f"INV-{rnd.randint(100000, 999999)}",
+                        c_data["account_id"], c_data["account_name"], "BillingAccount",
+                        sub_id, sub_name, "SubAccount",
+                        svc_cat, svc_name, svc_subcat,
+                        sku_id, f"Idle Standby {sku_desc}", f"price-{sku_id}",
+                        f"res-{uuid.uuid4().hex[:10]}", f"idle-probe-{j+1}", "VirtualResource",
+                        reg_id, reg_name, az,
+                        "Usage", "ZeroMetered", f"Standby micro-metered zero consumption", "Usage-Based",
+                        period_start, next_month, chg_start, chg_end,
+                        0.0, unit, 0.0, unit,
+                        0.0, 0.0, 0.0, 0.0, rate, rate,
+                        curr, curr, 0.0, rate, rate,
+                        None, None, None, None, None, None, None,
+                        None, None, '{"Environment": "Standby"}'
+                    ))
+
+                self.con.execute(f"CREATE TABLE {t_name} AS SELECT * FROM unified_focus;")
+                self.con.executemany(f"INSERT INTO {t_name} VALUES (" + ", ".join(["?"] * 55) + ")", rows)
+                self.provider_tables[cloud] = t_name
+
+            union_sql = " UNION ALL BY NAME ".join(f"SELECT * FROM {t}" for t in self.provider_tables.values())
+            self.con.execute(f"CREATE OR REPLACE TABLE raw_combined AS {union_sql};")
+
+            raw_recon = self.con.execute("""
+            SELECT 
+                BillingCurrency,
+                sum(COALESCE(BilledCost, 0)) AS total_billed,
+                sum(COALESCE(EffectiveCost, 0)) AS total_effective,
+                count(*) AS total_rows
+            FROM raw_combined
+            GROUP BY BillingCurrency;
+            """).df()
+
+            self.con.execute("""
+            CREATE OR REPLACE TABLE unified_focus AS
+            SELECT * FROM raw_combined
+            WHERE NOT (
+                ProviderName != 'Cloudflare'
+                AND COALESCE(BilledCost, 0) = 0
+                AND COALESCE(EffectiveCost, 0) = 0
+            );
+            """)
+
+            pruned_recon = self.con.execute("""
+            SELECT 
+                BillingCurrency,
+                sum(COALESCE(BilledCost, 0)) AS total_billed,
+                sum(COALESCE(EffectiveCost, 0)) AS total_effective,
+                count(*) AS total_rows
+            FROM unified_focus
+            GROUP BY BillingCurrency;
+            """).df()
+
+            for c_code in ["EUR", "USD"]:
+                r_c = raw_recon[raw_recon["BillingCurrency"] == c_code]
+                p_c = pruned_recon[pruned_recon["BillingCurrency"] == c_code]
+                if not r_c.empty and not p_c.empty:
+                    raw_b = float(r_c["total_billed"].iloc[0])
+                    pruned_b = float(p_c["total_billed"].iloc[0])
+                    delta = abs(raw_b - pruned_b)
+                    assert delta < 1e-9, f"Reconciliation delta violation for {c_code}: {delta}"
+                    self.log("QA Tester", f"  [PASSED] Invariance check for {c_code}: Net Total = {pruned_b:.6f}, Delta = {delta:.12f}")
+
+            self._export_parquet()
+
+            self.collect_metrics(raw_recon, pruned_recon)
+
+            norm_cnt = self.metrics.get("total_normalized_rows", 0)
+            pruned_cnt = self.metrics.get("pruned_count", 0)
+            ts_now = datetime.now().strftime("%H:%M:%S")
+
             gen_event = {
                 "filename": "Demo Telemetry Generator",
                 "provider": label,
                 "currency": "USD/EUR",
-                "rows": total_norm,
+                "rows": norm_cnt,
                 "status": "success",
-                "timestamp": datetime.now().strftime("%H:%M:%S"),
-                "message": f"Generated {label} ({total_norm} FOCUS 1.2 records active)."
+                "timestamp": ts_now,
+                "message": f"Generated {label} ({norm_cnt} FOCUS 1.2 records active, {pruned_cnt} idle rows pruned)."
             }
             self.recent_events.insert(0, gen_event)
+            self.recent_events = self.recent_events[:30]
+
             generate_interactive_dashboard(self.metrics, self.recent_events)
             return self.metrics
 
     def reload_initial(self) -> dict:
-        """Clears the active ledger and re-ingests all candidate billing files in the directory."""
-        return self.load_demo_preset("all")
+        """Clears the active ledger and synthesizes a fresh multi-cloud demo telemetry benchmark."""
+        return self.generate_synthetic_telemetry("all")
 
     def log(self, discipline: str, message: str):
         ts = datetime.now().strftime("%H:%M:%S")
@@ -919,15 +1348,27 @@ class FocusEngine:
 
             # Register new or updated provider tables in the multi-cloud ledger
             for t in normalizer.staged_tables:
-                p_row = self.con.execute(f"SELECT DISTINCT ProviderName FROM {t} WHERE ProviderName IS NOT NULL LIMIT 1").fetchone()
-                prov_key = p_row[0] if (p_row and p_row[0]) else t
-                if prov_key in self.provider_tables:
-                    existing_t = self.provider_tables[prov_key]
-                    comb_t = f"stage_comb_{abs(hash(t))}_{len(self.provider_tables)}"
-                    self.con.execute(f"CREATE TABLE {comb_t} AS SELECT * FROM {existing_t} UNION ALL BY NAME SELECT * FROM {t};")
-                    self.provider_tables[prov_key] = comb_t
+                distinct_provs = [r[0] for r in self.con.execute(f"SELECT DISTINCT ProviderName FROM {t} WHERE ProviderName IS NOT NULL").fetchall()]
+                if len(distinct_provs) > 1:
+                    for prov in distinct_provs:
+                        p_t = f"prov_{uuid.uuid4().hex[:8]}"
+                        self.con.execute(f"CREATE TABLE {p_t} AS SELECT * FROM {t} WHERE ProviderName = '{prov}';")
+                        if prov in self.provider_tables:
+                            existing_t = self.provider_tables[prov]
+                            comb_t = f"stage_comb_{abs(hash(p_t))}_{len(self.provider_tables)}"
+                            self.con.execute(f"CREATE TABLE {comb_t} AS SELECT * FROM {existing_t} UNION ALL BY NAME SELECT * FROM {p_t};")
+                            self.provider_tables[prov] = comb_t
+                        else:
+                            self.provider_tables[prov] = p_t
                 else:
-                    self.provider_tables[prov_key] = t
+                    prov_key = distinct_provs[0] if distinct_provs else t
+                    if prov_key in self.provider_tables:
+                        existing_t = self.provider_tables[prov_key]
+                        comb_t = f"stage_comb_{abs(hash(t))}_{len(self.provider_tables)}"
+                        self.con.execute(f"CREATE TABLE {comb_t} AS SELECT * FROM {existing_t} UNION ALL BY NAME SELECT * FROM {t};")
+                        self.provider_tables[prov_key] = comb_t
+                    else:
+                        self.provider_tables[prov_key] = t
 
             # Union all active provider tables into the consolidated ledger
             union_sql = " UNION ALL BY NAME ".join(f"SELECT * FROM {t}" for t in self.provider_tables.values())
@@ -977,9 +1418,7 @@ class FocusEngine:
                     self.log("QA Tester", f"  [PASSED] Invariance check for {curr}: Net Total = {pruned_b:.6f}, Delta = {delta:.12f}")
 
             # Export unified_focus.parquet atomically
-            self.con.execute(f"COPY unified_focus TO '{OUTPUT_PARQUET}' (FORMAT PARQUET, COMPRESSION 'ZSTD');")
-            p_rows = self.con.execute(f"SELECT count(*) FROM '{OUTPUT_PARQUET}'").fetchone()[0]
-            self.log("Data Engineer", f"Exported {OUTPUT_PARQUET} ({p_rows} rows).")
+            self._export_parquet()
 
             # Collect updated metrics
             self.collect_metrics(raw_recon, pruned_recon)
@@ -1024,8 +1463,8 @@ class FocusEngine:
 
         totals = {}
         for curr in ["USD", "EUR"]:
-            p_c = pruned_recon[pruned_recon["BillingCurrency"] == curr]
-            r_c = raw_recon[raw_recon["BillingCurrency"] == curr]
+            p_c = pruned_recon[pruned_recon["BillingCurrency"].astype(str).str.upper().str.strip() == curr] if not pruned_recon.empty else pruned_recon
+            r_c = raw_recon[raw_recon["BillingCurrency"].astype(str).str.upper().str.strip() == curr] if not raw_recon.empty else raw_recon
             totals[curr] = {
                 "billed": float(p_c["total_billed"].iloc[0]) if not p_c.empty else 0.0,
                 "effective": float(p_c["total_effective"].iloc[0]) if not p_c.empty else 0.0,
@@ -1048,18 +1487,18 @@ class FocusEngine:
 
         detail_df = self.con.execute("""
         SELECT 
-            ProviderName,
-            ServiceName,
-            ChargeCategory,
-            ChargeDescription,
-            COALESCE(ConsumedQuantity, 0) AS ConsumedQuantity,
-            COALESCE(ConsumedUnit, '-') AS ConsumedUnit,
-            COALESCE(BilledCost, 0) AS BilledCost,
-            COALESCE(EffectiveCost, 0) AS EffectiveCost,
-            BillingCurrency,
-            strftime(ChargePeriodStart, '%Y-%m-%d %H:%M') AS PeriodStart,
-            strftime(ChargePeriodEnd, '%Y-%m-%d %H:%M') AS PeriodEnd,
-            COALESCE(SubAccountName, SubAccountId, '-') AS SubAccount
+            COALESCE(CAST(ProviderName AS VARCHAR), 'Unknown') AS ProviderName,
+            COALESCE(CAST(ServiceName AS VARCHAR), '-') AS ServiceName,
+            COALESCE(CAST(ChargeCategory AS VARCHAR), 'Usage') AS ChargeCategory,
+            COALESCE(CAST(ChargeDescription AS VARCHAR), '-') AS ChargeDescription,
+            COALESCE(TRY_CAST(ConsumedQuantity AS DOUBLE), 0.0) AS ConsumedQuantity,
+            COALESCE(CAST(ConsumedUnit AS VARCHAR), '-') AS ConsumedUnit,
+            COALESCE(TRY_CAST(BilledCost AS DOUBLE), 0.0) AS BilledCost,
+            COALESCE(TRY_CAST(EffectiveCost AS DOUBLE), 0.0) AS EffectiveCost,
+            COALESCE(UPPER(TRIM(CAST(BillingCurrency AS VARCHAR))), 'USD') AS BillingCurrency,
+            COALESCE(strftime(TRY_CAST(ChargePeriodStart AS TIMESTAMP), '%Y-%m-%d %H:%M'), '-') AS PeriodStart,
+            COALESCE(strftime(TRY_CAST(ChargePeriodEnd AS TIMESTAMP), '%Y-%m-%d %H:%M'), '-') AS PeriodEnd,
+            COALESCE(CAST(SubAccountName AS VARCHAR), CAST(SubAccountId AS VARCHAR), '-') AS SubAccount
         FROM unified_focus
         ORDER BY BillingCurrency, ProviderName, BilledCost DESC, ServiceName;
         """).df()
@@ -1150,7 +1589,7 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path in ("/", "/report.html", "/index.html"):
             self.serve_html()
-        elif parsed.path == "/api/data":
+        elif parsed.path in ("/api/data", "/api/metrics"):
             self.serve_json({
                 "success": True,
                 "metrics": self.engine.metrics,
@@ -3130,14 +3569,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                         </div>
                         <div class="gen-box-title">Complete 5-Cloud Enterprise Dataset</div>
                         <div class="gen-box-desc">
-                            Ingests and normalizes <strong>229 raw billing events</strong> across AWS, Microsoft Azure, Google Cloud, Cloudflare, and Nebius AI into <strong>138 standard FOCUS 1.2 records</strong>. Automatically prunes <strong>91 idle $0.00 micro-metered rows</strong> while maintaining strict <code>0.000000%</code> delta invariance across USD ($0.013234) and EUR (€0.043892) pools.
+                            Dynamically generates and normalizes live synthetic multi-cloud billing telemetry across AWS, Microsoft Azure, Google Cloud, Cloudflare, and Nebius AI. Automatically prunes idle $0.00 micro-metered rows while maintaining strict <code>0.000000%</code> delta invariance across USD and EUR pools. Every generation synthesizes fresh line items and dynamic spend totals.
                         </div>
                         <div class="gen-box-actions">
                             <button type="button" class="btn-gen-primary" onclick="generateDemoSuite('all')">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square">
                                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                                 </svg>
-                                <span>GENERATE FULL MULTI-CLOUD SUITE (138 RECORDS)</span>
+                                <span>GENERATE DYNAMIC MULTI-CLOUD SUITE</span>
                             </button>
                         </div>
                     </div>
@@ -3150,28 +3589,28 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                                 <span class="preset-icon">☁</span>
                                 <div class="preset-text">
                                     <strong>Hyperscalers Suite</strong>
-                                    <span>AWS + Azure + Google Cloud</span>
+                                    <span>Dynamic AWS + Azure + Google Cloud</span>
                                 </div>
                             </button>
                             <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('ai_infra')" title="Generate Nebius AI GPU compute (USD) + Cloudflare R2 (USD)">
                                 <span class="preset-icon">⚡</span>
                                 <div class="preset-text">
                                     <strong>AI & Edge Infrastructure</strong>
-                                    <span>Nebius GPU/Epyc + Cloudflare R2</span>
+                                    <span>Dynamic Nebius GPU/Epyc + Cloudflare R2</span>
                                 </div>
                             </button>
-                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('aws_only')" title="Generate AWS Cost & Usage Report with Free Tier Credits (USD)">
+                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('aws_only')" title="Generate AWS Cost & Usage Report (USD)">
                                 <span class="preset-icon">🔶</span>
                                 <div class="preset-text">
                                     <strong>AWS CUR Dataset</strong>
-                                    <span>105 rows • EC2, S3, Secrets (USD)</span>
+                                    <span>Dynamic EC2, S3, RDS, Secrets (USD)</span>
                                 </div>
                             </button>
                             <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('europe_only')" title="Generate Google Cloud + Microsoft Azure (EUR)">
                                 <span class="preset-icon">💶</span>
                                 <div class="preset-text">
                                     <strong>European Cloud (EUR)</strong>
-                                    <span>Azure + GCP billing table (EUR)</span>
+                                    <span>Dynamic Azure + GCP telemetry (EUR)</span>
                                 </div>
                             </button>
                         </div>

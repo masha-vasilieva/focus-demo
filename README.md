@@ -62,6 +62,7 @@ Once started, open `http://localhost:8000` in your browser. Drag and drop any ra
 focus-demo/
 ├── focus_engine.py                  # Standalone zero-framework engine & HTTP server
 ├── report.html                      # Interactive self-contained HTML dashboard
+├── LICENSE                          # MIT open source license
 ├── SETUP.md                         # Clean environment installation & run guide
 ├── requirements.txt                 # Dependencies (DuckDB)
 ├── DESIGN.md                        # Visual design system specifications
@@ -80,4 +81,4 @@ focus-demo/
 
 ## License
 
-Apache-2.0
+MIT License — see [LICENSE](LICENSE) for details.

@@ -9,7 +9,6 @@ The visual language merges high-performance compute telemetry with clean Swiss a
 - The iconic geometric branching botanical tree / data antenna logo.
 - High-contrast, condensed technical typography (`Barlow Condensed`) paired with monospaced telemetry (`JetBrains Mono`).
 - Compartmentalized numbered metric blocks (`01`, `02`, `03`, `04`).
-- Programmable payment card layout for compute spend rule governance (`rule: GPU burn <= budget`).
 
 ---
 
@@ -61,8 +60,9 @@ The visual language merges high-performance compute telemetry with clean Swiss a
    - Symmetrical geometric tree glyph featuring a central vertical trunk with 3 tiers of branching limbs (45° diagonals, 90° uprights).
 3. **Numbered Metric Compartments**:
    - Stat cards feature top-left index indicators (`01`, `02`, `03`, `04`) reflecting the structured slides of the deck.
-4. **Programmable Compute Spend Card (Slide 7)**:
-   - The dropzone is styled as the programmable card interface: chip outline, masked card number `•••• •••• •••• 2026`, and rule governance tag `rule: GPU burn <= budget`.
+4. **Billing File Intake Zone**:
+   - The dropzone is a neutral blueprint panel with a document icon, `CLOUD BILLING // TELEMETRY INTAKE` label, and supported format pills.
+   - Do NOT use payment-card imagery (chip outline, masked card numbers, spend rules) — card payments are not a supported product feature.
 5. **Anti-Patterns**:
    - No diffuse drop shadows (clean 1px perimeter borders only).
    - No multi-color gradient fills (solid steel blue / ice blue tracks).

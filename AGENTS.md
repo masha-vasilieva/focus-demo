@@ -35,4 +35,4 @@ The agent must commit and push all changes to GitHub after completing every majo
 3. **Dynamic Content Sniffing**:
    - Content and schema-based detection for `.parquet`, `.csv`, `.json`, `.tar.gz`, `.zip`.
 4. **Visual Style**:
-   - Adhere strictly to the `PITCHDECK.pdf` design system defined in `DESIGN.md` (Barlow Condensed typography, Denim Steel Blue `#4d749a`, architectural grid, `+` alignment crosshairs, programmable spend card dropzone).
+   - Adhere strictly to the `PITCHDECK.pdf` design system defined in `DESIGN.md` (Barlow Condensed typography, Denim Steel Blue `#4d749a`, architectural grid, `+` alignment crosshairs, neutral billing-file intake zone — no payment-card imagery).

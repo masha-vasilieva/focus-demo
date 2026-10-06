@@ -468,9 +468,333 @@
         .card-crosshair.bl { bottom: 6px; left: 8px; }
         .card-crosshair.br { bottom: 6px; right: 8px; }
 
-        /* Slide 7: Programmable Spend Card / Drag & Drop Intake */
+        /* Slide 7: Programmable Spend Card / Drag & Drop Intake & Generator */
         .dropzone-section {
             margin-bottom: 24px;
+        }
+
+        /* Intake Mode Tabs */
+        .intake-tabs-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .intake-tabs-group {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .intake-tab-btn {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .intake-tab-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-steel);
+            background: var(--bg-surface-elevated);
+        }
+
+        .intake-tab-btn.active {
+            color: #ffffff;
+            background: var(--accent-steel);
+            border-color: var(--accent-steel);
+            box-shadow: 0 1px 3px rgba(77, 116, 154, 0.25);
+        }
+
+        [data-theme="dark"] .intake-tab-btn.active {
+            color: #12161c;
+            background: var(--accent-steel);
+            border-color: var(--accent-steel);
+        }
+
+        .tab-badge-pill {
+            background: var(--accent-sprout);
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        [data-theme="dark"] .tab-badge-pill {
+            background: #10b981;
+            color: #0f172a;
+        }
+
+        .intake-tab-btn.active .tab-badge-pill {
+            background: rgba(255, 255, 255, 0.25);
+            color: inherit;
+        }
+
+        .intake-tabs-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        /* Demo Generator Card */
+        .demo-generator-card {
+            padding: 20px 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .demo-generator-card.processing {
+            cursor: wait;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .generator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 14px;
+        }
+
+        .generator-title-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .generator-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-steel-subtle);
+            border: 1px solid var(--accent-steel-border);
+            color: var(--accent-steel);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .generator-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--text-primary);
+        }
+
+        .generator-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            line-height: 1.4;
+        }
+
+        .generator-body {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .generator-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .generator-primary-box {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-card);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gen-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gen-box-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--accent-steel);
+            letter-spacing: 0.08em;
+        }
+
+        .gen-box-badge {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--accent-sprout);
+            background: var(--accent-sprout-subtle);
+            border: 1px solid var(--accent-sprout-border);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+        }
+
+        .gen-box-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.04em;
+        }
+
+        .gen-box-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+
+        .gen-box-desc code {
+            font-family: var(--font-mono);
+            background: var(--bg-surface-muted);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.78rem;
+        }
+
+        .btn-gen-primary {
+            background: var(--accent-steel);
+            color: #ffffff;
+            border: 1px solid var(--accent-steel);
+            font-family: var(--font-display);
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            border-radius: var(--radius-control);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .btn-gen-primary:hover {
+            background: var(--accent-steel-hover);
+            border-color: var(--accent-steel-hover);
+        }
+
+        [data-theme="dark"] .btn-gen-primary {
+            color: #12161c;
+        }
+
+        .generator-presets-box {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-card);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gen-presets-title {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        .gen-preset-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-gen-preset {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+            transition: all 0.15s ease;
+        }
+
+        .btn-gen-preset:hover {
+            border-color: var(--accent-steel);
+            background: var(--accent-steel-subtle);
+        }
+
+        .preset-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .preset-text {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preset-text strong {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preset-text span {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropzone-card .tab-link {
+            pointer-events: auto;
+            color: var(--accent-steel);
+            text-decoration: underline;
+            font-weight: 700;
+        }
+        .dropzone-card .tab-link:hover {
+            color: var(--accent-phosphor);
         }
 
         .dropzone-card {
@@ -1224,58 +1548,175 @@
 
     <!-- Billing File Intake Zone -->
     <div class="dropzone-section">
-        <div class="blueprint-card dropzone-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
-            <div class="card-crosshair tl">+</div>
-            <div class="card-crosshair tr">+</div>
-            <div class="card-crosshair bl">+</div>
-            <div class="card-crosshair br">+</div>
-
-            <div class="dropzone-overlay" id="dropzoneOverlay">
-                <div class="blueprint-spinner"></div>
-                <div class="dropzone-overlay-text">EXECUTING DUCKDB NORMALIZATION KERNEL...</div>
-                <div class="dropzone-overlay-subtext">Content-sniffing schema and converting partitions to FOCUS 1.2 standard</div>
-            </div>
-
-            <div class="spend-card-header">
-                <div class="spend-card-title-wrap">
-                    <div class="intake-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="8" y1="13" x2="16" y2="13"></line>
-                            <line x1="8" y1="17" x2="13" y2="17"></line>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="spend-card-label">CLOUD BILLING // TELEMETRY INTAKE</div>
-                        <div class="intake-subtitle">Upload raw cloud billing exports — auto-detected and normalized to FOCUS 1.2 with DuckDB</div>
-                    </div>
-                </div>
-                <div class="format-tags">
-                    <span class="format-pill">.PARQUET</span>
-                    <span class="format-pill">.CSV</span>
-                    <span class="format-pill">.JSON</span>
-                    <span class="format-pill">.TAR.GZ</span>
-                    <span class="format-pill">.ZIP</span>
-                </div>
-            </div>
-
-            <div class="dropzone-inner-prompt">
-                <div class="dropzone-callout">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+        <!-- Intake Mode Tabs -->
+        <div class="intake-tabs-bar">
+            <div class="intake-tabs-group">
+                <button type="button" id="tabBtnUpload" class="intake-tab-btn active" onclick="switchIntakeTab('upload')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
-                    <div class="prompt-text">
-                        <strong class="prompt-headline">DRAG & DROP BILLING TELEMETRY FILES HERE OR CLICK TO BROWSE</strong>
-                        <span class="prompt-sub"><span id="modeStatusText" class="mode-status-text">[REPLACE ON DROP]</span> Content sniffs AWS, Azure, GCP, Cloudflare, Nebius partitions dynamically</span>
+                    <span>Upload Billing Files</span>
+                </button>
+                <button type="button" id="tabBtnDemo" class="intake-tab-btn" onclick="switchIntakeTab('demo')">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Generate Demo Data</span>
+                    <span class="tab-badge-pill">NO FILES NEEDED</span>
+                </button>
+            </div>
+            <div class="intake-tabs-meta">
+                <span class="crosshair-marker">+</span>
+                <span>TELEMETRY INTAKE ENGINE</span>
+            </div>
+        </div>
+
+        <!-- Tab 1: Upload Files Dropzone -->
+        <div id="tabContentUpload" class="tab-pane">
+            <div class="blueprint-card dropzone-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                <div class="card-crosshair tl">+</div>
+                <div class="card-crosshair tr">+</div>
+                <div class="card-crosshair bl">+</div>
+                <div class="card-crosshair br">+</div>
+
+                <div class="dropzone-overlay" id="dropzoneOverlay">
+                    <div class="blueprint-spinner"></div>
+                    <div class="dropzone-overlay-text">EXECUTING DUCKDB NORMALIZATION KERNEL...</div>
+                    <div class="dropzone-overlay-subtext">Content-sniffing schema and converting partitions to FOCUS 1.2 standard</div>
+                </div>
+
+                <div class="spend-card-header">
+                    <div class="spend-card-title-wrap">
+                        <div class="intake-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="8" y1="13" x2="16" y2="13"></line>
+                                <line x1="8" y1="17" x2="13" y2="17"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="spend-card-label">CLOUD BILLING // TELEMETRY INTAKE</div>
+                            <div class="intake-subtitle">Upload raw cloud billing exports — auto-detected and normalized to FOCUS 1.2 with DuckDB</div>
+                        </div>
+                    </div>
+                    <div class="format-tags">
+                        <span class="format-pill">.PARQUET</span>
+                        <span class="format-pill">.CSV</span>
+                        <span class="format-pill">.JSON</span>
+                        <span class="format-pill">.TAR.GZ</span>
+                        <span class="format-pill">.ZIP</span>
+                    </div>
+                </div>
+
+                <div class="dropzone-inner-prompt">
+                    <div class="dropzone-callout">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <div class="prompt-text">
+                            <strong class="prompt-headline">DRAG & DROP BILLING TELEMETRY FILES HERE OR CLICK TO BROWSE</strong>
+                            <span class="prompt-sub"><span id="modeStatusText" class="mode-status-text">[REPLACE ON DROP]</span> Content sniffs AWS, Azure, GCP, Cloudflare, Nebius partitions — or switch to <a href="javascript:void(0)" onclick="event.stopPropagation(); switchIntakeTab('demo');" class="tab-link">Generate Demo Data</a></span>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="file" id="fileInput" multiple style="display: none;" onclick="event.stopPropagation()">
+            </div>
+        </div>
+
+        <!-- Tab 2: Generate Demo Data -->
+        <div id="tabContentDemo" class="tab-pane" style="display: none;">
+            <div class="blueprint-card demo-generator-card">
+                <div class="card-crosshair tl">+</div>
+                <div class="card-crosshair tr">+</div>
+                <div class="card-crosshair bl">+</div>
+                <div class="card-crosshair br">+</div>
+
+                <div class="generator-header">
+                    <div class="generator-title-wrap">
+                        <div class="generator-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="generator-title">DEMO TELEMETRY GENERATOR // INSTANT SYNTHETIC BENCHMARK</div>
+                            <div class="generator-subtitle">No cloud billing files on hand? Instantly generate and normalize live multi-cloud FOCUS 1.2 telemetry to explore spend governance, dual-currency pools, and idle zero-row pruning.</div>
+                        </div>
+                    </div>
+                    <div class="format-tags">
+                        <span class="format-pill">AWS</span>
+                        <span class="format-pill">AZURE</span>
+                        <span class="format-pill">GCP</span>
+                        <span class="format-pill">CLOUDFLARE</span>
+                        <span class="format-pill">NEBIUS</span>
+                    </div>
+                </div>
+
+                <div class="generator-body">
+                    <!-- Primary Full Benchmark -->
+                    <div class="generator-primary-box">
+                        <div class="gen-box-header">
+                            <span class="gen-box-tag">PRIMARY BENCHMARK</span>
+                            <span class="gen-box-badge">DUAL-CURRENCY INVARIANCE (USD + EUR)</span>
+                        </div>
+                        <div class="gen-box-title">Complete 5-Cloud Enterprise Dataset</div>
+                        <div class="gen-box-desc">
+                            Ingests and normalizes <strong>229 raw billing events</strong> across AWS, Microsoft Azure, Google Cloud, Cloudflare, and Nebius AI into <strong>138 standard FOCUS 1.2 records</strong>. Automatically prunes <strong>91 idle $0.00 micro-metered rows</strong> while maintaining strict <code>0.000000%</code> delta invariance across USD ($0.013234) and EUR (€0.043892) pools.
+                        </div>
+                        <div class="gen-box-actions">
+                            <button type="button" class="btn-gen-primary" onclick="generateDemoSuite('all')">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square">
+                                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                                </svg>
+                                <span>GENERATE FULL MULTI-CLOUD SUITE (138 RECORDS)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selective Cloud Packs -->
+                    <div class="generator-presets-box">
+                        <div class="gen-presets-title">SELECTIVE CLOUD BENCHMARKS:</div>
+                        <div class="gen-preset-buttons">
+                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('hyperscalers')" title="Generate AWS (USD) + Azure (EUR) + Google Cloud (EUR)">
+                                <span class="preset-icon">☁</span>
+                                <div class="preset-text">
+                                    <strong>Hyperscalers Suite</strong>
+                                    <span>AWS + Azure + Google Cloud</span>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('ai_infra')" title="Generate Nebius AI GPU compute (USD) + Cloudflare R2 (USD)">
+                                <span class="preset-icon">⚡</span>
+                                <div class="preset-text">
+                                    <strong>AI & Edge Infrastructure</strong>
+                                    <span>Nebius GPU/Epyc + Cloudflare R2</span>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('aws_only')" title="Generate AWS Cost & Usage Report with Free Tier Credits (USD)">
+                                <span class="preset-icon">🔶</span>
+                                <div class="preset-text">
+                                    <strong>AWS CUR Dataset</strong>
+                                    <span>105 rows • EC2, S3, Secrets (USD)</span>
+                                </div>
+                            </button>
+                            <button type="button" class="btn-gen-preset" onclick="generateDemoSuite('europe_only')" title="Generate Google Cloud + Microsoft Azure (EUR)">
+                                <span class="preset-icon">💶</span>
+                                <div class="preset-text">
+                                    <strong>European Cloud (EUR)</strong>
+                                    <span>Azure + GCP billing table (EUR)</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <input type="file" id="fileInput" multiple style="display: none;" onclick="event.stopPropagation()">
         </div>
+
         <div id="alertToast" class="alert-toast"></div>
 
         <!-- Hardware Telemetry & Audit Stream -->
@@ -1819,26 +2260,51 @@
             }
         }
 
-        async function handleReload() {
-            dropZone.classList.add('processing');
-            showAlert('<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Reloading all sample cloud billing partitions (AWS, Azure, GCP, Cloudflare, Nebius)...', 'info');
+        function switchIntakeTab(tab) {
+            const btnUpload = document.getElementById('tabBtnUpload');
+            const btnDemo = document.getElementById('tabBtnDemo');
+            const paneUpload = document.getElementById('tabContentUpload');
+            const paneDemo = document.getElementById('tabContentDemo');
+
+            if (tab === 'demo') {
+                if (btnDemo) btnDemo.classList.add('active');
+                if (btnUpload) btnUpload.classList.remove('active');
+                if (paneDemo) paneDemo.style.display = 'block';
+                if (paneUpload) paneUpload.style.display = 'none';
+            } else {
+                if (btnUpload) btnUpload.classList.add('active');
+                if (btnDemo) btnDemo.classList.remove('active');
+                if (paneUpload) paneUpload.style.display = 'block';
+                if (paneDemo) paneDemo.style.display = 'none';
+            }
+        }
+
+        async function generateDemoSuite(preset) {
+            const demoCard = document.querySelector('.demo-generator-card');
+            if (demoCard) demoCard.classList.add('processing');
+            showAlert('<span class="blueprint-spinner" style="display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:middle; border-width:1.5px;"></span>Executing DuckDB normalization kernel for demo telemetry...', 'info');
+
             try {
-                const resp = await fetch(`${apiBase}/api/reload`, { method: 'POST' });
+                const resp = await fetch(`${apiBase}/api/generate-demo?preset=${encodeURIComponent(preset || 'all')}`, { method: 'POST' });
                 const result = await resp.json();
                 if (result.success) {
                     updateUI(result.metrics);
                     if (result.events && result.events.length > 0) {
                         renderActivityEvents(result.events);
                     }
-                    showAlert(`<strong>Demo Restored:</strong> Ingested ${result.metrics?.total_normalized_rows || 0} FOCUS 1.2 records across all 5 cloud providers.`, 'success');
+                    showAlert(`<strong>Demo Generated:</strong> Ingested ${result.metrics?.total_normalized_rows || 0} FOCUS 1.2 records into active ledger.`, 'success');
                 } else {
-                    showAlert(`<strong>Reload Error:</strong> ${result.error}`, 'error');
+                    showAlert(`<strong>Generator Error:</strong> ${result.error || 'Failed to generate demo data'}`, 'error');
                 }
             } catch (err) {
                 showAlert(`<strong>Network Error:</strong> ${err.message}`, 'error');
             } finally {
-                dropZone.classList.remove('processing');
+                if (demoCard) demoCard.classList.remove('processing');
             }
+        }
+
+        async function handleReload() {
+            return generateDemoSuite('all');
         }
 
         function renderActivityEvents(events) {
@@ -1914,6 +2380,12 @@
         if (recentEvents && recentEvents.length > 0) {
             renderActivityEvents(recentEvents);
         }
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'demo') {
+                switchIntakeTab('demo');
+            }
+        } catch(e) {}
 
         // Offline file:// helper: update direct file export links and ping local server
         if (window.location.protocol === 'file:') {

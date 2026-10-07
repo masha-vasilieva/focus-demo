@@ -41,9 +41,9 @@ import duckdb
 try:
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 except Exception:
-    SCRIPT_DIR = "/app/focus-engine"
+    SCRIPT_DIR = os.getcwd()
 if not SCRIPT_DIR or SCRIPT_DIR == ".":
-    SCRIPT_DIR = "/app/focus-engine"
+    SCRIPT_DIR = os.getcwd()
 DEFAULT_PORT = 8000
 OUTPUT_PARQUET = os.path.join(SCRIPT_DIR, "unified_focus.parquet")
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, "report.html")
@@ -1611,7 +1611,7 @@ class FocusRequestHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/unified_focus.duckdb":
             self.handle_export_duckdb()
         elif parsed.path == "/logo.png":
-            target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else "/app/downloads/logo.png"
+            target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else os.path.expanduser("~/Downloads/logo.png")
             if os.path.exists(target_logo):
                 self.send_response(200)
                 self.send_header("Content-Type", "image/png")
@@ -1817,7 +1817,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     pruned_rows_formatted = f"{pruned_rows:,}"
 
     logo_base64 = ""
-    target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else "/app/downloads/logo.png"
+    target_logo = LOGO_FILE if os.path.exists(LOGO_FILE) else os.path.expanduser("~/Downloads/logo.png")
     if os.path.exists(target_logo):
         try:
             with open(target_logo, "rb") as lf:

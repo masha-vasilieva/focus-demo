@@ -2669,7 +2669,9 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: flex;
             flex-direction: column;
             gap: 14px;
-            border-style: solid;
+            border-style: dashed;
+            border-width: 1.5px;
+            border-color: var(--accent-steel-hover);
         }}
 
         .dropzone-card * {{
@@ -2683,7 +2685,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .dropzone-card.dragover {{
             border-color: var(--accent-steel) !important;
             background: var(--accent-steel-subtle) !important;
-            border-style: solid !important;
+            border-style: dashed !important;
         }}
 
         .dropzone-card.processing {{

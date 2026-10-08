@@ -1,6 +1,13 @@
 # Cloud Botanist AI — FOCUS 1.2 Telemetry & Spend Governance Demo
 
+![AWS](https://img.shields.io/badge/AWS-%23232F3E.svg?style=for-the-badge&logo=amazon-webservices&logoColor=white)
+![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)
+![Nebius](https://img.shields.io/badge/Nebius_AI-black?style=for-the-badge)
+
 > Infrastructure-Native Payment Platform for Cloud & Compute Spend.
+> 📚 **[View the Cloud Botanist Pitch Deck (PDF)](PITCHDECK.pdf)**
 
 A zero-framework, standalone FinOps normalization engine built with **DuckDB** and Python's standard library. It ingests multi-cloud billing partitions (AWS, Azure, GCP, Cloudflare, Nebius), normalizes them into **FinOps Open Cost & Usage Specification (FOCUS™) 1.2** schema, and serves an interactive architectural blueprint dashboard with real-time drag-and-drop ingestion, dual-currency isolation (USD & EUR), and columnar data exports.
 
@@ -68,13 +75,12 @@ focus-demo/
 ├── DESIGN.md                        # Visual design system specifications
 ├── PITCHDECK.pdf                    # Pitch deck reference
 ├── logo.png                         # Cloud Botanist AI branding asset
-├── unified_focus.parquet            # Exported normalized FOCUS 1.2 dataset (Parquet)
-├── unified_focus.duckdb             # Exported normalized FOCUS 1.2 database (DuckDB)
-├── AWSDemoReport-00001.snappy.parquet # Sample AWS billing partition
-├── AZUREpart_0_0001.snappy.parquet  # Sample Azure billing partition
-├── GCP_cost_table.csv               # Sample GCP billing table
-├── NEBIUSnbs.tar.gz                 # Sample Nebius billing archive
-└── cloudflare.json                  # Sample Cloudflare GraphQL billing payload
+└── sample_data/                     # Sample datasets for multi-cloud normalization
+    ├── AWSDemoReport-00001.snappy.parquet # Sample AWS billing partition
+    ├── AZUREpart_0_0001.snappy.parquet  # Sample Azure billing partition
+    ├── GCP_cost_table.csv               # Sample GCP billing table
+    ├── NEBIUSnbs.tar.gz                 # Sample Nebius billing archive
+    └── cloudflare.json                  # Sample Cloudflare GraphQL billing payload
 ```
 
 ---

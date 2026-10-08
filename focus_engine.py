@@ -1230,11 +1230,11 @@ class FocusEngine:
 
         # Robust fallback for protected directories (e.g. macOS TCC): check known sample datasets
         fallback_samples = [
-            "AWSDemoReport-00001.snappy.parquet",
-            "AZUREpart_0_0001.snappy.parquet",
-            "GCP_cost_table.csv",
-            "NEBIUSnbs.tar.gz",
-            "cloudflare.json"
+            "sample_data/AWSDemoReport-00001.snappy.parquet",
+            "sample_data/AZUREpart_0_0001.snappy.parquet",
+            "sample_data/GCP_cost_table.csv",
+            "sample_data/NEBIUSnbs.tar.gz",
+            "sample_data/cloudflare.json"
         ]
         for s in fallback_samples:
             target = os.path.join(self.data_dir, s)

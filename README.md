@@ -1,10 +1,6 @@
 # Cloud Botanist AI — FOCUS 1.2 Telemetry & Spend Governance Demo
 
-<a href="https://commons.wikimedia.org/wiki/File:Amazon_Web_Services_Logo.svg"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" height="24" alt="AWS"></a>
-<a href="https://learn.microsoft.com/en-us/azure/architecture/icons/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Microsoft_Azure_Logo.svg" height="24" alt="Azure"></a>
-<a href="https://commons.wikimedia.org/wiki/File:Google_Cloud_logo.svg"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" height="24" alt="Google Cloud"></a>
-<a href="https://www.cloudflare.com/press/press-kit/"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg" height="24" alt="Cloudflare"></a>
-<a href="https://nebius.com/media-kit"><img src="https://nebius.com/logo.svg" height="24" alt="Nebius AI"></a>
+<a href="https://commons.wikimedia.org/wiki/File:Amazon_Web_Services_Logo.svg"><img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" height="24" alt="AWS"></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://learn.microsoft.com/en-us/azure/architecture/icons/"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Microsoft_Azure_Logo.svg" height="24" alt="Azure"></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://commons.wikimedia.org/wiki/File:Google_Cloud_logo.svg"><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" height="24" alt="Google Cloud"></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://www.cloudflare.com/press/press-kit/"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg" height="24" alt="Cloudflare"></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://nebius.com/media-kit"><img src="https://nebius.com/logo.svg" height="24" alt="Nebius AI"></a>
 
 > Infrastructure-Native Payment Platform for Cloud & Compute Spend.
 > 📚 **[View the Cloud Botanist Pitch Deck (PDF)](PITCHDECK.pdf)**

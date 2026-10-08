@@ -9,8 +9,7 @@
 > Infrastructure-Native Payment Platform for Cloud & Compute Spend.
 > 📚 **[View the Cloud Botanist Pitch Deck (PDF)](PITCHDECK.pdf)**
 
-A zero-framework, standalone FinOps normalization engine built with **DuckDB** and Python's standard library. It ingests multi-cloud billing partitions (AWS, Azure, GCP, Cloudflare, Nebius), normalizes them into **FinOps Open Cost & Usage Specification (FOCUS™) 1.2** schema, and serves an interactive architectural blueprint dashboard with real-time drag-and-drop ingestion, dual-currency isolation (USD & EUR), and columnar data exports.
-
+A lightweight, framework-free tool built with Python and DuckDB that cleans and normalizes multi-cloud billing data. It takes raw cost exports from AWS, Azure, GCP, Cloudflare, and Nebius, maps them to the FOCUS 1.2 standard, and features an interactive dashboard with drag-and-drop file uploads, dual-currency support (USD/EUR), and fast data exports.
 ---
 
 ## Key Features

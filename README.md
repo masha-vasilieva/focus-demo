@@ -24,7 +24,7 @@ A lightweight, framework-free tool built with Python and DuckDB that cleans and 
   - Full dimension alignment (`ProviderName`, `ServiceName`, `ChargeCategory`, `ChargeDescription`, `ConsumedQuantity`, `ConsumedUnit`, `BilledCost`, `EffectiveCost`, `BillingCurrency`, `PeriodStart`, `PeriodEnd`, etc.).
   - Automatic zero-spend micro-metered pruning ($0.00 idle rows).
   - Strict dual-currency isolation and invariant enforcement ($0.000000% delta across currency boundaries).
-- **Interactive Pitchdeck Blueprint Dashboard**:
+- **Interactive Blueprint Dashboard**:
   - Designed in the visual language of the Cloud Botanist pitch deck (architectural grid, Barlow Condensed typography, corner crosshairs `+`, and symmetrical botanical antenna glyph).
   - Dual theme support: Blueprint Light (default) & Blueprint Dark.
   - Drag-and-drop intake zone with **Replace on Drop** (default) and **Append** modes.

@@ -3,8 +3,8 @@
 [![AWS](https://img.shields.io/badge/AWS-%23232F3E.svg?style=for-the-badge&logo=amazon-webservices&logoColor=white)](https://commons.wikimedia.org/wiki/File:Amazon_Web_Services_Logo.svg)
 [![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white)](https://learn.microsoft.com/en-us/azure/architecture/icons/)
 ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
-![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)
-![Nebius](https://img.shields.io/badge/Nebius_AI-black?style=for-the-badge)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)](https://www.cloudflare.com/press/press-kit/)
+[![Nebius](https://img.shields.io/badge/Nebius_AI-black?style=for-the-badge)](https://nebius.com/media-kit)
 
 > Infrastructure-Native Payment Platform for Cloud & Compute Spend.
 > 📚 **[View the Cloud Botanist Pitch Deck (PDF)](PITCHDECK.pdf)**

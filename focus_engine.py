@@ -4133,7 +4133,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     showAlert(`<strong>Error:</strong> ${{result.error || 'Failed to normalize upload'}}`, 'error');
                 }}
             }} catch (err) {{
-                showAlert(`<strong>Network Error:</strong> ${{err.message}}`, 'error');
+                showAlert(`<strong>Static Preview:</strong> Cannot connect to local engine. To process your own files, please clone the GitHub repository and run <code>python3 focus_engine.py</code> locally.`, 'error');
             }} finally {{
                 dropZone.classList.remove('processing');
                 fileInput.value = '';
@@ -4156,7 +4156,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     showAlert(`<strong>Reset Error:</strong> ${{result.error}}`, 'error');
                 }}
             }} catch (err) {{
-                showAlert(`<strong>Network Error:</strong> ${{err.message}}`, 'error');
+                showAlert(`<strong>Static Preview:</strong> Cannot connect to local engine. To interact with the dashboard, run <code>python3 focus_engine.py</code> locally.`, 'error');
             }} finally {{
                 dropZone.classList.remove('processing');
             }}
@@ -4199,7 +4199,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     showAlert(`<strong>Generator Error:</strong> ${{result.error || 'Failed to generate demo data'}}`, 'error');
                 }}
             }} catch (err) {{
-                showAlert(`<strong>Network Error:</strong> ${{err.message}}`, 'error');
+                showAlert(`<strong>Static Preview:</strong> Cannot connect to local engine. To load different demo presets or process files, clone the GitHub repository and run <code>python3 focus_engine.py</code> locally.`, 'error');
             }} finally {{
                 if (demoCard) demoCard.classList.remove('processing');
             }}

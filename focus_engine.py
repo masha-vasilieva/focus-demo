@@ -2164,11 +2164,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .pill-title {{
-            font-size: 0.68rem;
-            font-weight: 300;
+            font-size: 0.72rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: var(--text-muted);
+            color: var(--text-main);
             padding: 0 4px 0 6px;
             font-family: var(--font-tag);
         }}

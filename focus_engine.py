@@ -1184,7 +1184,7 @@ class FocusEngine:
                     pruned_b = float(p_c["total_billed"].iloc[0])
                     delta = abs(raw_b - pruned_b)
                     assert delta < 1e-9, f"Reconciliation delta violation for {c_code}: {delta}"
-                    self.log("QA Tester", f"  [PASSED] Invariance check for {c_code}: Net Total = {pruned_b:.6f}, Delta = {delta:.12f}")
+                    self.log("QA Tester", f"  [PASSED] Invariance check for {c_code}: Net Total = {pruned_b:.2f}, Delta = {delta:.12f}")
 
             self._export_parquet()
 
@@ -1415,7 +1415,7 @@ class FocusEngine:
                     pruned_b = float(p_c["total_billed"].iloc[0])
                     delta = abs(raw_b - pruned_b)
                     assert delta < 1e-9, f"Reconciliation delta violation for {curr}: {delta}"
-                    self.log("QA Tester", f"  [PASSED] Invariance check for {curr}: Net Total = {pruned_b:.6f}, Delta = {delta:.12f}")
+                    self.log("QA Tester", f"  [PASSED] Invariance check for {curr}: Net Total = {pruned_b:.2f}, Delta = {delta:.12f}")
 
             # Export unified_focus.parquet atomically
             self._export_parquet()
@@ -1530,23 +1530,23 @@ class FocusEngine:
             if current_curr is not None and current_curr != p["currency"]:
                 sub = self.metrics["currency_totals"][current_curr]
                 sym = "$" if current_curr == "USD" else "€"
-                sub_billed = f"{sym}{sub['billed']:.6f}"
-                sub_effective = f"{sym}{sub['effective']:.6f}"
+                sub_billed = f"{sym}{sub['billed']:.2f}"
+                sub_effective = f"{sym}{sub['effective']:.2f}"
                 sub_pruned = sub["raw_rows"] - sub["normalized_rows"]
                 sub_label = f"SUBTOTAL ({current_curr})"
                 print(f"{sub_label:<18} | {current_curr:<8} | {sub['raw_rows']:<9} | {sub['normalized_rows']:<9} | {sub_pruned:<7} | {sub_billed:<18} | {sub_effective:<18}")
                 print("-" * 94)
             current_curr = p["currency"]
             sym = "$" if p["currency"] == "USD" else "€"
-            b_str = f"{sym}{p['billed_cost']:.6f}"
-            e_str = f"{sym}{p['effective_cost']:.6f}"
+            b_str = f"{sym}{p['billed_cost']:.2f}"
+            e_str = f"{sym}{p['effective_cost']:.2f}"
             print(f"{p['provider']:<18} | {p['currency']:<8} | {p['raw_rows']:<9} | {p['normalized_rows']:<9} | {p['pruned_rows']:<7} | {b_str:<18} | {e_str:<18}")
 
         if current_curr:
             sub = self.metrics["currency_totals"][current_curr]
             sym = "$" if current_curr == "USD" else "€"
-            sub_billed = f"{sym}{sub['billed']:.6f}"
-            sub_effective = f"{sym}{sub['effective']:.6f}"
+            sub_billed = f"{sym}{sub['billed']:.2f}"
+            sub_effective = f"{sym}{sub['effective']:.2f}"
             sub_pruned = sub["raw_rows"] - sub["normalized_rows"]
             sub_label = f"SUBTOTAL ({current_curr})"
             print(f"{sub_label:<18} | {current_curr:<8} | {sub['raw_rows']:<9} | {sub['normalized_rows']:<9} | {sub_pruned:<7} | {sub_billed:<18} | {sub_effective:<18}")
@@ -1554,7 +1554,7 @@ class FocusEngine:
 
         usd_tot = self.metrics["currency_totals"].get("USD", {}).get("billed", 0.0)
         eur_tot = self.metrics["currency_totals"].get("EUR", {}).get("billed", 0.0)
-        print(f"DUAL-CURRENCY TOTALS:  USD: ${usd_tot:.6f}  |  EUR: €{eur_tot:.6f}  (NEVER conflated)")
+        print(f"DUAL-CURRENCY TOTALS:  USD: ${usd_tot:.2f}  |  EUR: €{eur_tot:.2f}  (NEVER conflated)")
         print(f"PIPELINE METRICS:     Ingested {self.metrics['total_raw_rows']} raw records -> Pruned {self.metrics['pruned_count']} idle $0.00 rows -> {self.metrics['total_normalized_rows']} FOCUS 1.2 records.")
         print(f"ARTIFACT OUTPUTS:     Parquet: {OUTPUT_PARQUET}")
         print(f"                      Dashboard: {OUTPUT_HTML}")
@@ -1811,8 +1811,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     norm_rows = metrics.get('total_normalized_rows', 0)
     pruned_rows = metrics.get('pruned_count', 0)
 
-    usd_formatted = f"${usd_val:.6f}"
-    eur_formatted = f"€{eur_val:.6f}"
+    usd_formatted = f"${usd_val:.2f}"
+    eur_formatted = f"€{eur_val:.2f}"
     norm_rows_formatted = f"{norm_rows:,}"
     pruned_rows_formatted = f"{pruned_rows:,}"
 
@@ -3322,10 +3322,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <!-- Slide Meta Bar -->
     <div class="deck-top-meta">
         <div class="meta-group">
-            
-            <span>TELEMETRY ARCHITECTURE</span>
-            <span class="meta-divider">//</span>
-            <span>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM</span>
         </div>
         <div class="meta-group meta-group-right">
             <div class="meta-right-stack">
@@ -3368,11 +3364,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             </div>
         </div>
         <div class="header-actions">
-            <div class="badges">
-                <span class="badge badge-focus"><span class="badge-dot"></span>FOCUS v1.2</span>
-                <span class="badge badge-duckdb">DUCKDB</span>
-                <span class="badge badge-status">LIVE TELEMETRY</span>
-            </div>
             <div class="toggle-pill" role="group" aria-label="Ingestion Mode">
                 <span class="pill-title">MODE:</span>
                 <button type="button" id="btnModeReplace" class="pill-btn active" onclick="setMode('replace')" title="Replace active data with dropped file(s)">
@@ -3434,10 +3425,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     <span class="tab-badge-pill">NO FILES NEEDED</span>
                 </button>
             </div>
-            <div class="intake-tabs-meta">
-                
-                <span>TELEMETRY INTAKE ENGINE</span>
-            </div>
+
         </div>
 
         <!-- Tab 1: Upload Files Dropzone -->
@@ -3465,7 +3453,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                             </svg>
                         </div>
                         <div>
-                            <div class="spend-card-label">CLOUD BILLING // TELEMETRY INTAKE</div>
+                            <div class="spend-card-label">CLOUD BILLING</div>
                             <div class="intake-subtitle">Upload raw cloud billing exports — auto-detected and normalized to FOCUS 1.2 with DuckDB</div>
                         </div>
                     </div>
@@ -3591,7 +3579,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             <div class="panel-header">
                 <span class="panel-title">
                     
-                    AUDIT FEED // HARDWARE TELEMETRY & INGESTION STREAM
+                    AUDIT FEED
                 </span>
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
@@ -3770,8 +3758,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             const normRows = rawData.total_normalized_rows || 0;
             const prunedRows = rawData.pruned_count || 0;
 
-            document.getElementById('card-usd-total').textContent = '$' + usdTotal.toFixed(6);
-            document.getElementById('card-eur-total').textContent = '€' + eurTotal.toFixed(6);
+            document.getElementById('card-usd-total').textContent = '$' + usdTotal.toFixed(2);
+            document.getElementById('card-eur-total').textContent = '€' + eurTotal.toFixed(2);
             document.getElementById('card-row-count').textContent = normRows.toLocaleString();
             document.getElementById('card-pruned-count').textContent = prunedRows.toLocaleString();
             document.getElementById('card-records-chip').textContent = normRows + ' RECORDS';
@@ -3781,11 +3769,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             const eurProvs = (rawData.providers || []).filter(p => p.currency === 'EUR');
 
             document.getElementById('card-usd-breakdown').innerHTML = usdProvs.length > 0
-                ? usdProvs.map(p => `<span class="sub-chip">${{p.provider}}: $${{p.billed_cost.toFixed(6)}}</span>`).join('')
+                ? usdProvs.map(p => `<span class="sub-chip">${{p.provider}}: $${{p.billed_cost.toFixed(2)}}</span>`).join('')
                 : '<span class="sub-chip">$0.00 USD</span>';
 
             document.getElementById('card-eur-breakdown').innerHTML = eurProvs.length > 0
-                ? eurProvs.map(p => `<span class="sub-chip">${{p.provider}}: €${{p.billed_cost.toFixed(6)}}</span>`).join('')
+                ? eurProvs.map(p => `<span class="sub-chip">${{p.provider}}: €${{p.billed_cost.toFixed(2)}}</span>`).join('')
                 : '<span class="sub-chip">€0.00 EUR</span>';
 
             // Provider filter options
@@ -3817,7 +3805,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <div class="bar-group">
                     <div class="bar-label">
                         <span><strong>${{p.provider}}</strong> (${{p.normalized_rows}} rows)</span>
-                        <span class="mono-val">$${{p.billed_cost.toFixed(6)}}</span>
+                        <span class="mono-val">$${{p.billed_cost.toFixed(2)}}</span>
                     </div>
                     <div class="bar-track">
                         <div class="bar-fill bar-fill-usd" style="width: ${{pct}}%;"></div>
@@ -3831,7 +3819,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <div class="bar-group">
                     <div class="bar-label">
                         <span><strong>${{p.provider}}</strong> (${{p.normalized_rows}} rows)</span>
-                        <span class="mono-val">€${{p.billed_cost.toFixed(6)}}</span>
+                        <span class="mono-val">€${{p.billed_cost.toFixed(2)}}</span>
                     </div>
                     <div class="bar-track">
                         <div class="bar-fill bar-fill-eur" style="width: ${{pct}}%;"></div>
@@ -3862,7 +3850,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             let cls = 'zero';
             if (num > 0) cls = 'pos';
             else if (num < 0) cls = 'credit';
-            return `<span class="cost-col ${{cls}}">${{sym}}${{num.toFixed(6)}}</span>`;
+            return `<span class="cost-col ${{cls}}">${{sym}}${{num.toFixed(2)}}</span>`;
         }}
 
         function filterData() {{

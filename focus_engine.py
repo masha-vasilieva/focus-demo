@@ -1885,40 +1885,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             --radius-pill: 9999px;
         }}
 
-        [data-theme="dark"] {{
-            /* Blueprint Dark Theme (Slides 4, 8, 9) */
-            --bg-ground: #182432;
-            --bg-surface: #1c2a38;
-            --bg-surface-elevated: #141e2a;
-            --bg-surface-muted: #223344;
-            --grid-line: rgba(125, 167, 203, 0.08);
-            --crosshair-color: #4d6780;
-
-            --border-color: #2a3c50;
-            --border-subtle: #202f40;
-            --border-accent: rgba(125, 167, 203, 0.35);
-
-            /* Ice Blue Accent */
-            --accent-steel: #7da7cb;
-            --accent-steel-hover: #98bfdf;
-            --accent-steel-subtle: rgba(125, 167, 203, 0.12);
-            --accent-steel-border: rgba(125, 167, 203, 0.3);
-
-            --accent-sprout: #34d399;
-            --accent-sprout-subtle: rgba(52, 211, 153, 0.12);
-            --accent-sprout-border: rgba(52, 211, 153, 0.3);
-
-            --accent-phosphor: #38bdf8;
-            --accent-phosphor-subtle: rgba(56, 189, 248, 0.12);
-            --accent-phosphor-border: rgba(56, 189, 248, 0.3);
-
-            --signal-amber: #f59e0b;
-            --signal-ember: #f43f5e;
-
-            --text-primary: #f4f7fa;
-            --text-secondary: #9cb1c4;
-            --text-muted: #677d94;
-        }}
 
         *, *::before, *::after {{
             box-sizing: border-box;
@@ -2102,9 +2068,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: block;
         }}
 
-        [data-theme="dark"] .brand-logo-img {{
-            filter: invert(1);
-        }}
 
         .header-title h1 {{
             font-family: var(--font-display);
@@ -2369,11 +2332,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             box-shadow: 0 1px 3px rgba(77, 116, 154, 0.25);
         }}
 
-        [data-theme="dark"] .intake-tab-btn.active {{
-            color: #12161c;
-            background: var(--accent-steel);
-            border-color: var(--accent-steel);
-        }}
 
         .tab-badge-pill {{
             background: var(--accent-sprout);
@@ -2387,10 +2345,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             text-transform: uppercase;
         }}
 
-        [data-theme="dark"] .tab-badge-pill {{
-            background: #10b981;
-            color: #0f172a;
-        }}
 
         .intake-tab-btn.active .tab-badge-pill {{
             background: rgba(255, 255, 255, 0.25);
@@ -2569,9 +2523,6 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-color: var(--accent-steel-hover);
         }}
 
-        [data-theme="dark"] .btn-gen-primary {{
-            color: #12161c;
-        }}
 
         .generator-presets-box {{
             background: var(--bg-surface-elevated);
@@ -3431,15 +3382,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     Append
                 </button>
             </div>
-            <div class="toggle-pill" role="group" aria-label="Theme Mode">
-                <span class="pill-title">THEME:</span>
-                <button type="button" id="btnThemeLight" class="pill-btn active" onclick="setTheme('light')" title="Light Blueprint (Slides 1-3, 5-7)">
-                    Light
-                </button>
-                <button type="button" id="btnThemeDark" class="pill-btn" onclick="setTheme('dark')" title="Dark Blueprint (Slides 4, 8-9)">
-                    Dark
-                </button>
-            </div>
+
             <button class="btn-subtle-action" id="reloadBtn" onclick="handleReload()" title="Reload all 5 local sample multi-cloud datasets (AWS, Azure, GCP, Cloudflare, Nebius)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square">
                     <polyline points="23 4 23 10 17 10"></polyline>
@@ -3818,26 +3761,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         let sortCol = 'BilledCost';
         let sortAsc = false;
 
-        function setTheme(theme) {{
-            document.documentElement.setAttribute('data-theme', theme);
-            try {{ localStorage.setItem('cb_pitchdeck_theme', theme); }} catch(e) {{}}
-            const btnL = document.getElementById('btnThemeLight');
-            const btnD = document.getElementById('btnThemeDark');
-            if (btnL && btnD) {{
-                if (theme === 'dark') {{
-                    btnD.classList.add('active');
-                    btnL.classList.remove('active');
-                }} else {{
-                    btnL.classList.add('active');
-                    btnD.classList.remove('active');
-                }}
-            }}
-        }}
 
-        try {{
-            const saved = localStorage.getItem('cb_pitchdeck_theme');
-            if (saved) setTheme(saved);
-        }} catch(e) {{}}
 
         function updateUI(data) {{
             rawData = data || {{}};

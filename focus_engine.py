@@ -2327,13 +2327,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             transition: all 0.15s ease;
         }}
 
-        .intake-tab-btn:hover {
+        .intake-tab-btn:hover {{
             color: var(--text-primary);
             border-color: var(--accent-steel);
             background: var(--bg-surface-elevated);
             transform: translateY(-1px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
+        }}
 
         .intake-tab-btn.active {{
             color: #ffffff;
@@ -2530,12 +2530,12 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             margin-top: 4px;
         }}
 
-        .btn-gen-primary:hover {
+        .btn-gen-primary:hover {{
             background: var(--accent-steel-hover);
             border-color: var(--accent-steel-hover);
             transform: translateY(-1px);
             box-shadow: 0 4px 6px rgba(77, 116, 154, 0.25);
-        }
+        }}
 
 
         .generator-presets-box {{
@@ -3127,12 +3127,12 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             gap: 6px;
             transition: all 0.15s ease;
         }}
-        .btn-action:hover {
+        .btn-action:hover {{
             border-color: var(--accent-steel);
             color: var(--accent-steel);
             transform: translateY(-1px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
+        }}
 
         .table-filters-row {{
             display: flex;

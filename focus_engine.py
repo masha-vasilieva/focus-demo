@@ -1522,7 +1522,7 @@ class FocusEngine:
         print("-" * 94)
 
         if not self.metrics.get("providers"):
-            print(f"  [AWAITING BILLING TELEMETRY] Active ledger is at $0.00. Drag & drop files or click Reload Demo Data.")
+            print(f"  [AWAITING BILLING TELEMETRY] Active ledger is at $0.00. Drag & drop files or click Generate Demo Data.")
             print("-" * 94)
 
         current_curr = None
@@ -3596,7 +3596,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
             <div class="activity-list" id="activityLogList">
-                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Awaiting cloud billing telemetry stream. Ingest files above or click 'Reload Demo Data'.</div>
+                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Awaiting cloud billing telemetry stream. Ingest files above or click 'Generate Demo Data'.</div>
             </div>
         </div>
     </div>

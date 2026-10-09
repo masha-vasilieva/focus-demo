@@ -3458,6 +3458,18 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         </div>
     </header>
 
+    <!-- What is FOCUS 1.2 Callout -->
+    <div class="blueprint-card" style="margin-bottom: 24px; padding: 18px 24px;">
+        <div class="card-crosshair tl">+</div>
+        <div class="card-crosshair tr">+</div>
+        <div class="card-crosshair bl">+</div>
+        <div class="card-crosshair br">+</div>
+        <strong style="color: var(--accent-steel); font-family: var(--font-display); letter-spacing: 0.05em; margin-bottom: 8px; display: block; font-size: 0.95rem;">WHAT IS FOCUS 1.2?</strong>
+        <p style="margin: 0; line-height: 1.55; color: var(--text-dim); font-size: 0.88rem;">
+            The <strong>FinOps Open Cost and Usage Specification (FOCUS™)</strong> is an open-source technical standard supported by the FinOps Foundation. It defines a unified billing schema that allows engineers to normalize raw, proprietary cost exports from AWS, Azure, Google Cloud, and others into a single, consistent ledger without losing context.
+        </p>
+    </div>
+
     <!-- Billing File Intake Zone -->
     <div class="dropzone-section">
         <!-- Intake Mode Tabs -->

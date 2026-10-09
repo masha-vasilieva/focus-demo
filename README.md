@@ -4,6 +4,7 @@
 
 > Infrastructure-Native Payment Platform for Cloud & Compute Spend.
 > 📚 **[View the Cloud Botanist Pitch Deck (PDF)](PITCHDECK.pdf)**
+> 🌐 **[View Live Interactive Demo](https://cloudbotanist-demo.vslmasha.workers.dev/)**
 
 A lightweight, framework-free tool built with Python and DuckDB that cleans and normalizes multi-cloud billing data. It takes raw cost exports from AWS, Azure, GCP, Cloudflare, and Nebius, maps them to the FOCUS 1.2 standard, and features an interactive dashboard with drag-and-drop file uploads, dual-currency support (USD/EUR), and fast data exports.
 ---

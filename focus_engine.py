@@ -3322,7 +3322,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <!-- Slide Meta Bar -->
     <div class="deck-top-meta">
         <div class="meta-group">
-            <span class="crosshair-marker">+</span>
+            
             <span>TELEMETRY ARCHITECTURE</span>
             <span class="meta-divider">//</span>
             <span>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM</span>
@@ -3352,7 +3352,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     </a>
                 </div>
             </div>
-            <span class="crosshair-marker">+</span>
+            
         </div>
     </div>
 
@@ -3403,10 +3403,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
     <!-- What is FOCUS 1.2 Callout -->
     <div class="blueprint-card" style="margin-bottom: 24px; padding: 18px 24px;">
-        <div class="card-crosshair tl">+</div>
-        <div class="card-crosshair tr">+</div>
-        <div class="card-crosshair bl">+</div>
-        <div class="card-crosshair br">+</div>
+        
+        
+        
+        
         <strong style="color: var(--accent-steel); font-family: var(--font-display); letter-spacing: 0.05em; margin-bottom: 8px; display: block; font-size: 0.95rem;">WHAT IS FOCUS 1.2?</strong>
         <p style="margin: 0; line-height: 1.55; color: var(--text-dim); font-size: 0.88rem;">
             The <strong>FinOps Open Cost and Usage Specification (FOCUS™)</strong> is an open-source technical standard supported by the FinOps Foundation. It defines a unified billing schema that allows engineers to normalize raw, proprietary cost exports from AWS, Azure, Google Cloud, and others into a single, consistent ledger without losing context.
@@ -3435,7 +3435,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 </button>
             </div>
             <div class="intake-tabs-meta">
-                <span class="crosshair-marker">+</span>
+                
                 <span>TELEMETRY INTAKE ENGINE</span>
             </div>
         </div>
@@ -3443,10 +3443,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <!-- Tab 1: Upload Files Dropzone -->
         <div id="tabContentUpload" class="tab-pane">
             <div class="blueprint-card dropzone-card" id="dropZone" onclick="document.getElementById('fileInput').click()">
-                <div class="card-crosshair tl">+</div>
-                <div class="card-crosshair tr">+</div>
-                <div class="card-crosshair bl">+</div>
-                <div class="card-crosshair br">+</div>
+                
+                
+                
+                
 
                 <div class="dropzone-overlay" id="dropzoneOverlay">
                     <div class="blueprint-spinner"></div>
@@ -3499,10 +3499,10 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <!-- Tab 2: Generate Demo Data -->
         <div id="tabContentDemo" class="tab-pane" style="display: none;">
             <div class="blueprint-card demo-generator-card">
-                <div class="card-crosshair tl">+</div>
-                <div class="card-crosshair tr">+</div>
-                <div class="card-crosshair bl">+</div>
-                <div class="card-crosshair br">+</div>
+                
+                
+                
+                
 
                 <div class="generator-header">
                     <div class="generator-title-wrap">
@@ -3590,7 +3590,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <div class="blueprint-panel activity-panel">
             <div class="panel-header">
                 <span class="panel-title">
-                    <span class="crosshair-marker">+</span>
+                    
                     AUDIT FEED // HARDWARE TELEMETRY & INGESTION STREAM
                 </span>
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
@@ -3604,8 +3604,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <!-- Numbered Spend Metric Compartments (Slides 3, 4, 6) -->
     <div class="cards-grid">
         <div class="blueprint-card stat-card">
-            <div class="card-crosshair tl">+</div>
-            <div class="card-crosshair tr">+</div>
+            
+            
             <div class="stat-top">
                 <span class="stat-index">01 // ALLOCATED USD SPEND</span>
                 <span class="stat-tag">USD POOL</span>
@@ -3617,8 +3617,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         </div>
 
         <div class="blueprint-card stat-card">
-            <div class="card-crosshair tl">+</div>
-            <div class="card-crosshair tr">+</div>
+            
+            
             <div class="stat-top">
                 <span class="stat-index">02 // ALLOCATED EUR SPEND</span>
                 <span class="stat-tag">EUR POOL</span>
@@ -3630,8 +3630,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         </div>
 
         <div class="blueprint-card stat-card">
-            <div class="card-crosshair tl">+</div>
-            <div class="card-crosshair tr">+</div>
+            
+            
             <div class="stat-top">
                 <span class="stat-index">03 // ACTIVE FOCUS 1.2 RECORDS</span>
                 <span class="stat-tag" id="card-records-chip">{norm_rows_formatted} RECORDS</span>
@@ -3648,7 +3648,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <div class="blueprint-panel chart-panel">
             <div class="panel-header">
                 <span class="panel-title">
-                    <span class="crosshair-marker">+</span>
+                    
                     04 // USD INFRASTRUCTURE SPEND YIELD
                 </span>
                 <span class="curr-pill curr-usd">USD</span>
@@ -3659,7 +3659,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         <div class="blueprint-panel chart-panel">
             <div class="panel-header">
                 <span class="panel-title">
-                    <span class="crosshair-marker">+</span>
+                    
                     05 // EUR INFRASTRUCTURE SPEND YIELD
                 </span>
                 <span class="curr-pill curr-eur">EUR</span>
@@ -3672,7 +3672,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
     <div class="blueprint-panel table-panel">
         <div class="panel-header">
             <span class="panel-title">
-                <span class="crosshair-marker">+</span>
+                
                 06 // NORMALIZED FOCUS 1.2 TELEMETRY LEDGER
             </span>
             <div class="table-actions">
@@ -3747,8 +3747,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
     <!-- Deck Footer -->
     <footer class="deck-footer">
-        <div><span class="crosshair-marker">+</span> CLOUD BOTANIST AI // INFRASTRUCTURE-NATIVE PAYMENT PLATFORM FOR CLOUD & COMPUTE SPEND</div>
-        <div><a href="https://cloudbotanist.ai" target="_blank" rel="noopener noreferrer" class="meta-link">cloudbotanist.ai</a> // FOCUS 1.2 ENGINE <span class="crosshair-marker">+</span></div>
+        <div> CLOUD BOTANIST AI // INFRASTRUCTURE-NATIVE PAYMENT PLATFORM FOR CLOUD & COMPUTE SPEND</div>
+        <div><a href="https://cloudbotanist.ai" target="_blank" rel="noopener noreferrer" class="meta-link">cloudbotanist.ai</a> // FOCUS 1.2 ENGINE </div>
     </footer>
 
     <script>

@@ -1494,10 +1494,6 @@
     <!-- Slide Meta Bar -->
     <div class="deck-top-meta">
         <div class="meta-group">
-            
-            <span>TELEMETRY ARCHITECTURE</span>
-            <span class="meta-divider">//</span>
-            <span>INFRASTRUCTURE-NATIVE PAYMENT PLATFORM</span>
         </div>
         <div class="meta-group meta-group-right">
             <div class="meta-right-stack">
@@ -1540,11 +1536,6 @@
             </div>
         </div>
         <div class="header-actions">
-            <div class="badges">
-                <span class="badge badge-focus"><span class="badge-dot"></span>FOCUS v1.2</span>
-                <span class="badge badge-duckdb">DUCKDB</span>
-                <span class="badge badge-status">LIVE TELEMETRY</span>
-            </div>
             <div class="toggle-pill" role="group" aria-label="Ingestion Mode">
                 <span class="pill-title">MODE:</span>
                 <button type="button" id="btnModeReplace" class="pill-btn active" onclick="setMode('replace')" title="Replace active data with dropped file(s)">
@@ -1606,10 +1597,7 @@
                     <span class="tab-badge-pill">NO FILES NEEDED</span>
                 </button>
             </div>
-            <div class="intake-tabs-meta">
-                
-                <span>TELEMETRY INTAKE ENGINE</span>
-            </div>
+
         </div>
 
         <!-- Tab 1: Upload Files Dropzone -->
@@ -1637,7 +1625,7 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="spend-card-label">CLOUD BILLING // TELEMETRY INTAKE</div>
+                            <div class="spend-card-label">CLOUD BILLING</div>
                             <div class="intake-subtitle">Upload raw cloud billing exports — auto-detected and normalized to FOCUS 1.2 with DuckDB</div>
                         </div>
                     </div>
@@ -1763,7 +1751,7 @@
             <div class="panel-header">
                 <span class="panel-title">
                     
-                    AUDIT FEED // HARDWARE TELEMETRY & INGESTION STREAM
+                    AUDIT FEED
                 </span>
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
@@ -1782,7 +1770,7 @@
                 <span class="stat-index">01 // ALLOCATED USD SPEND</span>
                 <span class="stat-tag">USD POOL</span>
             </div>
-            <div class="stat-number usd" id="card-usd-total">$0.000000</div>
+            <div class="stat-number usd" id="card-usd-total">$0.00</div>
             <div class="stat-subtext" id="card-usd-breakdown">
                 <span class="sub-chip">$0.00 USD</span>
             </div>
@@ -1795,7 +1783,7 @@
                 <span class="stat-index">02 // ALLOCATED EUR SPEND</span>
                 <span class="stat-tag">EUR POOL</span>
             </div>
-            <div class="stat-number eur" id="card-eur-total">€0.000000</div>
+            <div class="stat-number eur" id="card-eur-total">€0.00</div>
             <div class="stat-subtext" id="card-eur-breakdown">
                 <span class="sub-chip">€0.00 EUR</span>
             </div>
@@ -1942,8 +1930,8 @@
             const normRows = rawData.total_normalized_rows || 0;
             const prunedRows = rawData.pruned_count || 0;
 
-            document.getElementById('card-usd-total').textContent = '$' + usdTotal.toFixed(6);
-            document.getElementById('card-eur-total').textContent = '€' + eurTotal.toFixed(6);
+            document.getElementById('card-usd-total').textContent = '$' + usdTotal.toFixed(2);
+            document.getElementById('card-eur-total').textContent = '€' + eurTotal.toFixed(2);
             document.getElementById('card-row-count').textContent = normRows.toLocaleString();
             document.getElementById('card-pruned-count').textContent = prunedRows.toLocaleString();
             document.getElementById('card-records-chip').textContent = normRows + ' RECORDS';
@@ -1953,11 +1941,11 @@
             const eurProvs = (rawData.providers || []).filter(p => p.currency === 'EUR');
 
             document.getElementById('card-usd-breakdown').innerHTML = usdProvs.length > 0
-                ? usdProvs.map(p => `<span class="sub-chip">${p.provider}: $${p.billed_cost.toFixed(6)}</span>`).join('')
+                ? usdProvs.map(p => `<span class="sub-chip">${p.provider}: $${p.billed_cost.toFixed(2)}</span>`).join('')
                 : '<span class="sub-chip">$0.00 USD</span>';
 
             document.getElementById('card-eur-breakdown').innerHTML = eurProvs.length > 0
-                ? eurProvs.map(p => `<span class="sub-chip">${p.provider}: €${p.billed_cost.toFixed(6)}</span>`).join('')
+                ? eurProvs.map(p => `<span class="sub-chip">${p.provider}: €${p.billed_cost.toFixed(2)}</span>`).join('')
                 : '<span class="sub-chip">€0.00 EUR</span>';
 
             // Provider filter options
@@ -1989,7 +1977,7 @@
                 <div class="bar-group">
                     <div class="bar-label">
                         <span><strong>${p.provider}</strong> (${p.normalized_rows} rows)</span>
-                        <span class="mono-val">$${p.billed_cost.toFixed(6)}</span>
+                        <span class="mono-val">$${p.billed_cost.toFixed(2)}</span>
                     </div>
                     <div class="bar-track">
                         <div class="bar-fill bar-fill-usd" style="width: ${pct}%;"></div>
@@ -2003,7 +1991,7 @@
                 <div class="bar-group">
                     <div class="bar-label">
                         <span><strong>${p.provider}</strong> (${p.normalized_rows} rows)</span>
-                        <span class="mono-val">€${p.billed_cost.toFixed(6)}</span>
+                        <span class="mono-val">€${p.billed_cost.toFixed(2)}</span>
                     </div>
                     <div class="bar-track">
                         <div class="bar-fill bar-fill-eur" style="width: ${pct}%;"></div>
@@ -2034,7 +2022,7 @@
             let cls = 'zero';
             if (num > 0) cls = 'pos';
             else if (num < 0) cls = 'credit';
-            return `<span class="cost-col ${cls}">${sym}${num.toFixed(6)}</span>`;
+            return `<span class="cost-col ${cls}">${sym}${num.toFixed(2)}</span>`;
         }
 
         function filterData() {

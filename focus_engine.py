@@ -2180,11 +2180,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 4px 10px;
             border-radius: var(--radius-sm);
             font-family: var(--font-display);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             transition: all 0.15s ease;
             white-space: nowrap;
         }}
@@ -2208,11 +2210,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 6px 14px;
             border-radius: var(--radius-control);
             font-family: var(--font-display);
-            font-size: 0.84rem;
+            font-size: 0.95rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -2231,11 +2235,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 6px 14px;
             border-radius: var(--radius-control);
             font-family: var(--font-display);
-            font-size: 0.84rem;
+            font-size: 0.95rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -2306,24 +2312,28 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             font-family: var(--font-display);
-            font-size: 0.88rem;
+            font-size: 0.98rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 8px 16px;
             border-radius: var(--radius-sm);
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: all 0.15s ease;
         }}
 
-        .intake-tab-btn:hover {{
+        .intake-tab-btn:hover {
             color: var(--text-primary);
             border-color: var(--accent-steel);
             background: var(--bg-surface-elevated);
-        }}
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
 
         .intake-tab-btn.active {{
             color: #ffffff;
@@ -2417,7 +2427,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .generator-subtitle {{
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
             margin-top: 2px;
             line-height: 1.4;
@@ -2484,7 +2494,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .gen-box-desc {{
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             line-height: 1.45;
         }}
@@ -2494,7 +2504,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: var(--bg-surface-muted);
             padding: 1px 4px;
             border-radius: 3px;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
         }}
 
         .btn-gen-primary {{
@@ -2502,13 +2512,15 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             color: #ffffff;
             border: 1px solid var(--accent-steel);
             font-family: var(--font-display);
-            font-size: 0.92rem;
+            font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 10px 18px;
             border-radius: var(--radius-control);
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -2518,10 +2530,12 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             margin-top: 4px;
         }}
 
-        .btn-gen-primary:hover {{
+        .btn-gen-primary:hover {
             background: var(--accent-steel-hover);
             border-color: var(--accent-steel-hover);
-        }}
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(77, 116, 154, 0.25);
+        }
 
 
         .generator-presets-box {{
@@ -2555,6 +2569,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             border-radius: var(--radius-sm);
             padding: 8px 10px;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             display: flex;
             align-items: center;
             gap: 8px;
@@ -2615,6 +2631,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .dropzone-card {{
             padding: 20px 24px;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             position: relative;
             overflow: hidden;
             display: flex;
@@ -2719,14 +2737,14 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .spend-card-label {{
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: 0.04em;
         }}
 
         .intake-subtitle {{
-            font-size: 0.74rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-top: 2px;
         }}
@@ -2780,7 +2798,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .prompt-sub {{
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             color: var(--text-secondary);
         }}
 
@@ -2802,7 +2820,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 10px 16px;
             border-radius: var(--radius-control);
             margin-top: 12px;
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             animation: bpFadeIn 0.2s ease;
         }}
 
@@ -2842,7 +2860,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         .panel-title {{
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
@@ -2855,7 +2873,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         .btn-subtle {{
             font-family: var(--font-display);
-            font-size: 0.74rem;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.06em;
             text-transform: uppercase;
@@ -2863,6 +2881,8 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             background: transparent;
             border: 1px solid var(--border-subtle);
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             padding: 3px 8px;
             border-radius: var(--radius-sm);
             transition: all 0.15s ease;
@@ -2884,7 +2904,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             padding: 6px 10px;
             border-radius: var(--radius-sm);
             background: var(--bg-surface-elevated);
@@ -2949,7 +2969,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
 
         .stat-index {{
             font-family: var(--font-display);
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 0.06em;
@@ -3056,7 +3076,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         .bar-label {{
             display: flex;
             justify-content: space-between;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             color: var(--text-secondary);
         }}
 
@@ -3094,21 +3114,25 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 6px 14px;
             border-radius: var(--radius-control);
             font-family: var(--font-display);
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             transition: all 0.15s ease;
         }}
-        .btn-action:hover {{
+        .btn-action:hover {
             border-color: var(--accent-steel);
             color: var(--accent-steel);
-        }}
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
 
         .table-filters-row {{
             display: flex;
@@ -3142,7 +3166,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 8px 12px 8px 34px;
             color: var(--text-primary);
             font-family: var(--font-sans);
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             outline: none;
             transition: border-color 0.15s ease;
         }}
@@ -3163,9 +3187,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 8px 12px;
             color: var(--text-primary);
             font-family: var(--font-sans);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             outline: none;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
         }}
 
         .table-wrapper {{
@@ -3177,7 +3203,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         table {{
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             text-align: left;
         }}
 
@@ -3189,9 +3215,11 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 10px 12px;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             white-space: nowrap;
             user-select: none;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }}
@@ -3266,7 +3294,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             justify-content: space-between;
             align-items: center;
             margin-top: 14px;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             color: var(--text-secondary);
         }}
 
@@ -3282,11 +3310,13 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
             padding: 4px 10px;
             border-radius: var(--radius-sm);
             font-family: var(--font-display);
-            font-size: 0.82rem;
+            font-size: 0.95rem;
             font-weight: 700;
             letter-spacing: 0.04em;
             text-transform: uppercase;
             cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
             transition: all 0.15s ease;
         }}
         .page-btn.active {{
@@ -3399,7 +3429,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         
         
         <strong style="color: var(--accent-steel); font-family: var(--font-display); letter-spacing: 0.05em; margin-bottom: 8px; display: block; font-size: 0.95rem;">WHAT IS FOCUS 1.2?</strong>
-        <p style="margin: 0; line-height: 1.55; color: var(--text-dim); font-size: 0.88rem;">
+        <p style="margin: 0; line-height: 1.55; color: var(--text-dim); font-size: 0.98rem;">
             The FinOps Open Cost and Usage Specification (FOCUS™) is an open-source technical standard supported by the FinOps Foundation. It defines a unified billing schema that allows engineers to normalize raw, proprietary cost exports from AWS, Azure, Google Cloud, and others into a single, consistent ledger without losing context. <a href="https://focus.finops.org/docs/specification/v1-2/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-steel); text-decoration: underline; font-weight: 600; margin-left: 4px;">Read the v1.2 spec &rarr;</a>
         </p>
     </div>
@@ -3584,7 +3614,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 <button class="btn-subtle" onclick="clearActivityLog()">Clear Feed</button>
             </div>
             <div class="activity-list" id="activityLogList">
-                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Awaiting cloud billing telemetry stream. Ingest files above or click 'Generate Demo Data'.</div>
+                <div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.88rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Awaiting cloud billing telemetry stream. Ingest files above or click 'Generate Demo Data'.</div>
             </div>
         </div>
     </div>
@@ -3811,7 +3841,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                         <div class="bar-fill bar-fill-usd" style="width: ${{pct}}%;"></div>
                     </div>
                 </div>`;
-            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO USD TELEMETRY IN ACTIVE LEDGER</div>';
+            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.9rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO USD TELEMETRY IN ACTIVE LEDGER</div>';
 
             eurContainer.innerHTML = eurProviders.length > 0 ? eurProviders.map(p => {{
                 const pct = Math.max((p.billed_cost / maxEUR) * 100, p.billed_cost > 0 ? 5 : 2);
@@ -3825,7 +3855,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                         <div class="bar-fill bar-fill-eur" style="width: ${{pct}}%;"></div>
                     </div>
                 </div>`;
-            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.8rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO EUR TELEMETRY IN ACTIVE LEDGER</div>';
+            }}).join('') : '<div style="color: var(--text-muted); text-align: left; padding: 20px 0; font-size: 0.9rem; font-family: var(--font-tag); font-weight: 300; letter-spacing: 0.08em; text-transform: uppercase;">NO EUR TELEMETRY IN ACTIVE LEDGER</div>';
         }}
 
         function getProvBadge(prov) {{
@@ -3909,7 +3939,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     <tr>
                         <td colspan="10" style="text-align: center; padding: 48px 16px; color: var(--text-secondary);">
                             <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); font-family: var(--font-display);">NO TELEMETRY PARTITIONS LOADED</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-sans); font-weight: 400;">Ingest raw billing files (.parquet, .csv, .json, .tar.gz, .zip) into the intake card above.</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--font-sans); font-weight: 400;">Ingest raw billing files (.parquet, .csv, .json, .tar.gz, .zip) into the intake card above.</div>
                         </td>
                     </tr>`;
                 renderPagination(0);
@@ -3928,7 +3958,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                     <td>${{formatCost(r.BilledCost, r.BillingCurrency)}}</td>
                     <td>${{formatCost(r.EffectiveCost, r.BillingCurrency)}}</td>
                     <td><span class="curr-badge curr-${{(r.BillingCurrency || 'usd').toLowerCase()}}">${{r.BillingCurrency}}</span></td>
-                    <td class="telemetry-num" style="font-size: 0.74rem; color: var(--text-muted);">${{r.PeriodStart || '-'}}</td>
+                    <td class="telemetry-num" style="font-size: 0.85rem; color: var(--text-muted);">${{r.PeriodStart || '-'}}</td>
                 </tr>
             `).join('');
 
@@ -4176,7 +4206,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         }}
 
         function clearActivityLog() {{
-            activityList.innerHTML = '<div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.78rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Telemetry stream cleared. Ingest partitions above.</div>';
+            activityList.innerHTML = '<div class="activity-placeholder" style="color: var(--text-muted); font-size: 0.88rem; padding: 6px 4px; font-family: var(--font-sans); font-weight: 400;">Telemetry stream cleared. Ingest partitions above.</div>';
         }}
 
         // Listeners
@@ -4240,7 +4270,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
                 }})
                 .catch(() => {{
                     const notice = document.createElement('div');
-                    notice.style.cssText = 'background: rgba(217, 119, 6, 0.15); border: 1px solid var(--signal-amber); color: var(--signal-amber); padding: 8px 16px; margin-bottom: 16px; border-radius: var(--radius-control); font-size: 0.82rem; font-family: var(--font-sans); font-weight: 400;';
+                    notice.style.cssText = 'background: rgba(217, 119, 6, 0.15); border: 1px solid var(--signal-amber); color: var(--signal-amber); padding: 8px 16px; margin-bottom: 16px; border-radius: var(--radius-control); font-size: 0.95rem; font-family: var(--font-sans); font-weight: 400;';
                     notice.innerHTML = '⚡ NOTE: Viewing via file:// protocol. For live drag-and-drop ingestion, run <code>python3 focus_engine.py</code> and navigate to <a href="http://localhost:8000" style="color:inherit; font-weight:700;">http://localhost:8000</a>.';
                     const header = document.querySelector('.header');
                     if (header && header.parentNode) header.parentNode.insertBefore(notice, header.nextSibling);

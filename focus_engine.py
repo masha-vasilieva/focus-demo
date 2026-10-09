@@ -3409,7 +3409,7 @@ def generate_interactive_dashboard(metrics: dict, recent_events: list = None):
         
         <strong style="color: var(--accent-steel); font-family: var(--font-display); letter-spacing: 0.05em; margin-bottom: 8px; display: block; font-size: 0.95rem;">WHAT IS FOCUS 1.2?</strong>
         <p style="margin: 0; line-height: 1.55; color: var(--text-dim); font-size: 0.88rem;">
-            The <strong><a href="https://focus.finops.org/docs/specification/v1-2/" target="_blank" rel="noopener noreferrer" style="color: var(--text-main); text-decoration: underline;">FinOps Open Cost and Usage Specification (FOCUS™)</a></strong> is an open-source technical standard supported by the FinOps Foundation. It defines a unified billing schema that allows engineers to normalize raw, proprietary cost exports from AWS, Azure, Google Cloud, and others into a single, consistent ledger without losing context. <a href="https://focus.finops.org/docs/specification/v1-2/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-steel); text-decoration: underline; font-weight: 600; margin-left: 4px;">Read the v1.2 spec &rarr;</a>
+            The <strong>FinOps Open Cost and Usage Specification (FOCUS™)</strong> is an open-source technical standard supported by the FinOps Foundation. It defines a unified billing schema that allows engineers to normalize raw, proprietary cost exports from AWS, Azure, Google Cloud, and others into a single, consistent ledger without losing context. <a href="https://focus.finops.org/docs/specification/v1-2/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-steel); text-decoration: underline; font-weight: 600; margin-left: 4px;">Read the v1.2 spec &rarr;</a>
         </p>
     </div>
 
